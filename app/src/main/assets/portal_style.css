@@ -1,0 +1,254 @@
+/* ============================================================
+   ApaOltenia Client - stil injectat peste portalul web
+   Tinteste: login.jsp (pagina clasica) + aplicatia OpenUI5 (/oui/)
+   Regulile folosesc specificitate ridicata (html .clasa) + !important
+   ca sa castige in fata CSS-ului portalului, indiferent de ordine.
+   ============================================================ */
+
+/* ---------- fundal si tipografie comune ---------- */
+html body {
+  font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* ============================================================
+   1. PAGINA DE LOGIN (login.jsp)
+   ============================================================ */
+
+/* fundalul cu poza -> gradient curat, aerisit */
+html body {
+  background: linear-gradient(165deg, #dceefb 0%, #f4f9fd 45%, #eaf3fa 100%) !important;
+}
+
+/* cardul de login/inregistrare/recuperare */
+html .face {
+  background: #ffffff !important;
+  border-radius: 18px !important;
+  box-shadow: 0 12px 40px rgba(0, 68, 112, 0.14), 0 2px 8px rgba(0, 68, 112, 0.08) !important;
+  border: 1px solid rgba(0, 114, 188, 0.08) !important;
+}
+
+/* titlurile cardurilor */
+html .face .content h2 {
+  color: #005A96 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+}
+
+/* campurile de text */
+html .face .content .field-wrapper input[type="text"],
+html .face .content .field-wrapper input[type="password"],
+html .face .content .field-wrapper input[type="number"],
+html .face .content .field-wrapper textarea {
+  /* longhand-uri explicite: portalul stileaza bordura pe laturi separate
+     (border-style/width/color per latura), iar shorthand-ul singur poate
+     pierde in fata lor la egalitate de importanta */
+  border-width: 1.5px !important;
+  border-style: solid !important;
+  border-color: #cfe0ee !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+  background: #fafcfe !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+html .face .content .field-wrapper input[type="text"]:focus,
+html .face .content .field-wrapper input[type="password"]:focus,
+html .face .content .field-wrapper input[type="number"]:focus,
+html .face .content .field-wrapper textarea:focus {
+  border-color: #0072BC !important;
+  box-shadow: 0 0 0 3px rgba(0, 114, 188, 0.15) !important;
+  outline: none !important;
+}
+
+/* butonul principal (Login / trimite) */
+html .face .content .field-wrapper input[type="submit"] {
+  background: linear-gradient(180deg, #0080d2 0%, #0072BC 60%, #0067aa 100%) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 4px 14px rgba(0, 114, 188, 0.35) !important;
+  transition: transform 0.1s ease, box-shadow 0.2s ease !important;
+}
+
+html .face .content .field-wrapper input[type="submit"]:active {
+  transform: translateY(1px) !important;
+  box-shadow: 0 2px 6px rgba(0, 114, 188, 0.3) !important;
+}
+
+/* butoanele secundare: "Ati uitat parola?", "Inregistreaza-te" */
+html .psw, html .signup, html .singin, html .anulareVfCod {
+  color: #0072BC !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* meniul de sus al paginii de login */
+html .topnav {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+html .topnav a {
+  color: #33475B !important;
+}
+html .topnav a.active, html .topnav a:hover {
+  background: #0072BC !important;
+  color: #ffffff !important;
+}
+
+/* etichetele plutitoare peste inputuri */
+html .face .content .field-wrapper label {
+  color: #6b8299 !important;
+}
+
+/* ============================================================
+   2. APLICATIA LOGATA (OpenUI5, /oui/)
+   ============================================================ */
+
+/* -- header-ul principal: albastru inchis prafuit -> brand curat -- */
+html .sapContrast.sapTntToolHeader.sapMTB,
+html .sapContrast .sapTntToolHeader.sapMTB,
+html .sapTntToolHeader.sapMTB {
+  background: linear-gradient(180deg, #0078c6 0%, #0072BC 100%) !important;
+  border-bottom: none !important;
+  box-shadow: 0 2px 10px rgba(0, 68, 112, 0.25) !important;
+}
+
+/* zone colorate cu albastrul vechi #346187 -> brand */
+html .backgroundBlue,
+html .fontColor {
+  background: #0072BC !important;
+  color: #ffffff !important;
+}
+
+/* -- meniul lateral -- */
+html .sapContrast.sapTntSideNavigation,
+html .sapContrast .sapTntSideNavigation {
+  background: #f7fafd !important;
+}
+html .sapTntNavLIItemSelected {
+  background: rgba(0, 114, 188, 0.14) !important;
+  border-left: 3px solid #0072BC !important;
+}
+html .sapContrast.sapTntNavLIItemSelected .sapTntNavLIGroup,
+html .sapContrast .sapTntNavLIItemSelected .sapTntNavLIGroup {
+  background: rgba(0, 114, 188, 0.14) !important;
+  color: #005A96 !important;
+}
+
+/* -- butoane -- */
+html .sapMBtnInner {
+  border-radius: 9px !important;
+  transition: filter 0.15s ease !important;
+}
+html .sapMBtnInner.sapMBtnEmphasized,
+html .sapContrast span.sapMBtnInner.sapMBtnEmphasized {
+  background: #0072BC !important;
+  border-color: #0072BC !important;
+  text-shadow: none !important;
+}
+html .sapMBtnInner.sapMBtnEmphasized:active {
+  background: #005A96 !important;
+}
+
+/* butoane de succes / critice: pastreaza semantica, doar le rotunjim */
+html .sapMBtnSuccess .sapMBtnInner, html .sapMBtnCritical .sapMBtnInner {
+  border-radius: 9px !important;
+}
+
+/* -- panouri / carduri -- */
+html .utiStyle .sapMPanel,
+html .sapMPanel {
+  border-radius: 14px !important;
+  box-shadow: 0 3px 14px rgba(0, 68, 112, 0.09) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(0, 114, 188, 0.07) !important;
+}
+html .utiStyle .sapMPanel > .sapMPanelHdr,
+html .utiStyle .sapMPanelWrappingDiv,
+html .sapMPanelWrappingDivTb {
+  background: #f0f6fb !important;
+  border-bottom: 1px solid rgba(0, 114, 188, 0.1) !important;
+}
+
+/* -- sectiunile colorate de pe home (Sold, Transmitere index etc.) -- */
+html .backgroundSectionLight {
+  background-color: #f2f7fc !important;
+}
+html .backgroundSectionDark {
+  background-color: #ddeaf6 !important;
+}
+html .backgroundSold {
+  background-color: #e4eefa !important;
+  border-radius: 12px !important;
+}
+html .backgroundTransmitere,
+html .backgroundActivareFactura,
+html .backgroundActivareAlerte,
+html .backgroundActualizareDate,
+html .backgroundTrimitiveMessage,
+html .backgroundInformatiiContract {
+  border-radius: 12px !important;
+}
+
+/* -- linkuri si accente -- */
+html .sapMLnk, html .lightBlueColor {
+  color: #0072BC !important;
+}
+html .blueColor {
+  color: #005A96 !important;
+}
+
+/* -- liste / tabele (facturi) -- */
+html .sapMLIB {
+  transition: background-color 0.15s ease !important;
+}
+html .sapMListUl > .sapMLIB.sapMGHLI {
+  background: #e9f2fa !important;
+  color: #005A96 !important;
+  font-weight: 700 !important;
+}
+html .sapMLIB.sapMLIBSelected {
+  background: rgba(0, 114, 188, 0.10) !important;
+}
+
+/* -- inputuri SAP -- */
+html .sapMInputBaseContentWrapper {
+  border-radius: 9px !important;
+}
+html .sapMInputBaseContentWrapperState.sapMInputBaseContentWrapperFocus,
+html .sapMInputBaseContentWrapper.sapMInputBaseContentWrapperFocus {
+  border-color: #0072BC !important;
+}
+
+/* -- checkbox-uri -- */
+html .sapMCbMarkChecked {
+  color: #0072BC !important;
+}
+
+/* -- bara de jos (footer) -- */
+html.sap-desktop .sapContrast .sapMIBar.sapMFooter-CTX,
+html.sap-desktop .sapContrast.sapMIBar.sapMFooter-CTX,
+html .sapMIBar.sapMFooter-CTX {
+  background: #f7fafd !important;
+  border-top: 1px solid rgba(0, 114, 188, 0.12) !important;
+}
+
+/* -- popover-uri si dialoguri -- */
+html .sapMPopover, html .sapMDialog {
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+
+/* -- micsoram zgomotul vizual: separatoare mai discrete -- */
+html .sapMLIBShowSeparator {
+  border-bottom-color: rgba(0, 90, 150, 0.10) !important;
+}
+
+/* titluri de sectiune */
+html .fontH2 {
+  color: #005A96 !important;
+  font-weight: 700 !important;
+}

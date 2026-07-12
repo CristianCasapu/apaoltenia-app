@@ -192,10 +192,21 @@ class MainActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.VISIBLE
             }
 
+            override fun onPageCommitVisible(view: WebView, url: String) {
+                super.onPageCommitVisible(view, url)
+                // Injectam stilul cat mai devreme, ca pagina sa nu "clipeasca"
+                // cu aspectul vechi inainte de restilizare.
+                injectCustomStyle(url)
+            }
+
             override fun onPageFinished(view: WebView, url: String) {
                 super.onPageFinished(view, url)
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
+
+                // Reinjectam la final: aplicatia OpenUI5 isi incarca CSS-ul
+                // asincron si vrem ca foaia noastra sa ramana in documentul final.
+                injectCustomStyle(url)
 
                 if (!url.contains("login.jsp", ignoreCase = true)) return
 
@@ -222,6 +233,36 @@ class MainActivity : AppCompatActivity() {
                 if (request.isForMainFrame) showErrorState()
             }
         }
+    }
+
+    /** CSS-ul custom pentru portal, citit o singura data din assets. */
+    private val portalCss: String by lazy {
+        assets.open("portal_style.css").bufferedReader().use { it.readText() }
+    }
+
+    /**
+     * Injecteaza foaia de stil custom peste paginile portalului. CSS-ul este
+     * transportat Base64 ca sa nu depinda de escapari; JS-ul inlocuieste
+     * elementul <style> daca exista deja (idempotent la reincarcari).
+     */
+    private fun injectCustomStyle(url: String) {
+        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        val b64 = android.util.Base64.encodeToString(
+            portalCss.toByteArray(Charsets.UTF_8), android.util.Base64.NO_WRAP
+        )
+        val js = """
+            (function() {
+              var id = 'apao-custom-style';
+              var css = atob('$b64');
+              var el = document.getElementById(id);
+              if (el) { el.textContent = css; return; }
+              el = document.createElement('style');
+              el.id = id;
+              el.textContent = css;
+              (document.head || document.documentElement).appendChild(el);
+            })();
+        """.trimIndent()
+        binding.webView.evaluateJavascript(js, null)
     }
 
     /** Activeaza randarea intunecata a paginii web cand aplicatia e pe tema dark. */

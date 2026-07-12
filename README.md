@@ -28,6 +28,9 @@ pe dispozitivul tau.
 - 🔒 **Deblocare biometrica** inainte de auto-login.
 - 🌗 **Temă luminoasă / întunecată / ca sistemul**, comutabila din **Setari**
   si aplicata inclusiv paginii web (algorithmic darkening).
+- 🎨 **Stil custom peste portal**: aplicatia injecteaza o foaie de stil proprie
+  (culori de brand, carduri rotunjite, umbre discrete) peste pagina de login si
+  peste aplicatia OpenUI5 a portalului, pentru un aspect modern si coerent.
 - 🔄 **Pull-to-refresh** si bara de progres la incarcare.
 - 🔔 **Notificari facturi noi** (best-effort — vezi mai jos).
 - ⬆️ **Verificare actualizari** din aplicatie (Setari → Verifica actualizari),
@@ -118,6 +121,7 @@ app/src/main/
 │   ├── InvoiceCheckScheduler.kt  # pornire/oprire verificare periodica
 │   ├── NotificationHelper.kt     # notificarea de factura noua
 │   └── UpdateChecker.kt          # verificare versiuni via GitHub Releases
+├── assets/portal_style.css       # stilul custom injectat peste portal
 ├── res/…                         # layout, teme day/night, iconite, texte
 └── AndroidManifest.xml
 .github/workflows/release.yml     # build + release automat la tag
