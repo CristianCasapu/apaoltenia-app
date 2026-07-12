@@ -1,0 +1,18 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.claude/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+app/build/
+
+# Semnare — NU urca niciodata keystore-ul sau parolele pe GitHub.
+keystore.properties
+*.apk
+*.aab
+*.keystore
+*.jks

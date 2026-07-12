@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/settings_title" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- TEMA -->
+        <TextView
+            style="@style/SettingsSectionHeader"
+            android:text="@string/settings_theme" />
+
+        <RadioGroup
+            android:id="@+id/themeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/themeSystem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/settings_theme_system" />
+
+            <RadioButton
+                android:id="@+id/themeLight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/settings_theme_light" />
+
+            <RadioButton
+                android:id="@+id/themeDark"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/settings_theme_dark" />
+        </RadioGroup>
+
+        <View style="@style/SettingsDivider" />
+
+        <!-- NOTIFICARI -->
+        <TextView
+            style="@style/SettingsSectionHeader"
+            android:text="@string/settings_notifications" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/notifySwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/settings_notify_invoices" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/settings_notify_hint"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <View style="@style/SettingsDivider" />
+
+        <!-- ACTUALIZARI -->
+        <TextView
+            style="@style/SettingsSectionHeader"
+            android:text="@string/settings_updates" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/checkUpdatesButton"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_check_updates" />
+
+        <TextView
+            android:id="@+id/versionLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <View style="@style/SettingsDivider" />
+
+        <!-- DATE SALVATE -->
+        <TextView
+            style="@style/SettingsSectionHeader"
+            android:text="@string/settings_data" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/forgetButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/forget_button" />
+
+        <View style="@style/SettingsDivider" />
+
+        <!-- DESPRE -->
+        <TextView
+            style="@style/SettingsSectionHeader"
+            android:text="@string/settings_about" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/about_body"
+            android:textColor="?android:attr/textColorSecondary"
+            android:lineSpacingMultiplier="1.2"
+            android:autoLink="web|email"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+    </ScrollView>
+</LinearLayout>

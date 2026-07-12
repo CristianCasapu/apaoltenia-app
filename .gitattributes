@@ -1,0 +1,10 @@
+# Normalizeaza sfarsiturile de linie: text auto in repo (LF).
+* text=auto eol=lf
+
+# Scripturi / binare
+*.bat        text eol=crlf
+*.jar        binary
+*.png        binary
+*.jks        binary
+*.keystore   binary
+gradlew      text eol=lf

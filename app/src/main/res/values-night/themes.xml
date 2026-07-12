@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Varianta intunecata: accent mai deschis pentru contrast pe fundal inchis.
+         Restul culorilor (surface, text) vin din Material3 DayNight. -->
+    <style name="Theme.ApaOltenia" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary_light</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSecondary">@color/brand_primary_light</item>
+        <item name="colorOnSecondary">@color/black</item>
+    </style>
+</resources>

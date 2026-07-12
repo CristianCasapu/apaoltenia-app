@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Albastru ApaOltenia — folosit ca accent in ambele teme. -->
+    <color name="brand_primary">#0072BC</color>
+    <color name="brand_primary_dark">#005A96</color>
+    <color name="brand_primary_light">#4FA3D8</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>

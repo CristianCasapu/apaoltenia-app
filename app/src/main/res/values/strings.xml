@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ApaOltenia Client</string>
+    <string name="unlock_hint">Deblocheaza pentru a te conecta</string>
+    <string name="unlock_button">Deblocheaza</string>
+    <string name="unlock_failed">Deblocare esuata. Incearca din nou.</string>
+    <string name="unlock_prompt_title">Deblocheaza ApaOltenia</string>
+    <string name="unlock_prompt_subtitle">Confirma identitatea pentru a te conecta</string>
+    <string name="save_title">Salvezi datele de conectare?</string>
+    <string name="save_message">Emailul si parola vor fi criptate pe dispozitiv. La urmatoarea deschidere te vei conecta cu amprenta, fata, modelul sau PIN-ul telefonului.</string>
+    <string name="save_yes">Salveaza</string>
+    <string name="save_no">Nu acum</string>
+    <string name="update_title">Actualizezi datele de conectare?</string>
+    <string name="update_message">Datele introduse difera de cele salvate pe dispozitiv. Le inlocuiesti cu cele noi?</string>
+    <string name="forget_button">Sterge datele salvate</string>
+    <string name="forget_title">Stergi datele salvate?</string>
+    <string name="forget_message">Emailul si parola criptate vor fi sterse de pe dispozitiv. Va trebui sa te autentifici manual din nou.</string>
+    <string name="forget_yes">Sterge</string>
+    <string name="load_error">Pagina nu a putut fi incarcata. Verifica conexiunea la internet.</string>
+    <string name="retry_button">Reincearca</string>
+
+    <!-- Meniu -->
+    <string name="menu_reload">Reincarca</string>
+    <string name="menu_settings">Setari</string>
+
+    <!-- Setari -->
+    <string name="settings_title">Setari</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_system">Ca sistemul</string>
+    <string name="settings_theme_light">Luminos</string>
+    <string name="settings_theme_dark">Intunecat</string>
+    <string name="settings_notifications">Notificari</string>
+    <string name="settings_notify_invoices">Anunta-ma cand apare o factura noua</string>
+    <string name="settings_notify_hint">Aplicatia verifica periodic portalul (aprox. o data la 6 ore) cat timp sesiunea ta este activa si iti trimite o notificare la aparitia unei facturi noi.</string>
+    <string name="settings_notify_needs_login">Salveaza intai datele de conectare (autentifica-te o data in aplicatie) ca sa poata functiona verificarea in fundal.</string>
+    <string name="settings_updates">Actualizari</string>
+    <string name="settings_check_updates">Verifica actualizari</string>
+    <string name="settings_data">Date salvate</string>
+    <string name="settings_about">Despre</string>
+    <string name="version_label">Versiune %1$s</string>
+    <string name="about_body">ApaOltenia Client — invelis neoficial pentru portalul clienti.apaoltenia.ro, cu deblocare biometrica si notificari de facturi.\n\nCreator: Cristian Casapu\nWeb: https://cristiancasapu.ro\nContact: contact@cristiancasapu.ro\n\nAplicatie neoficiala, fara legatura cu S.C. Compania de Apa Oltenia S.A. Toate datele raman pe dispozitivul tau.</string>
+
+    <!-- Actualizari -->
+    <string name="update_checking">Se verifica actualizarile…</string>
+    <string name="update_available_title">Actualizare disponibila</string>
+    <string name="update_available_message">Versiunea %1$s este disponibila. O descarci acum?</string>
+    <string name="update_download">Descarca</string>
+    <string name="update_later">Mai tarziu</string>
+    <string name="update_up_to_date">Ai deja cea mai noua versiune.</string>
+    <string name="update_check_failed">Nu am putut verifica actualizarile. Incearca mai tarziu.</string>
+
+    <!-- Notificari facturi -->
+    <string name="notif_channel_name">Facturi noi</string>
+    <string name="notif_channel_desc">Anunt cand apare o factura noua in portalul ApaOltenia.</string>
+    <string name="notif_invoice_title">Factura noua ApaOltenia</string>
+    <string name="notif_invoice_body">A aparut o factura noua in contul tau. Atinge pentru a o deschide.</string>
+    <string name="notif_permission_denied">Fara permisiunea de notificari nu te pot anunta despre facturi noi.</string>
+</resources>

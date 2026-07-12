@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema de baza (mod luminos). Material3 DayNight comuta automat pe
+         varianta -night cand sistemul / utilizatorul alege modul intunecat. -->
+    <style name="Theme.ApaOltenia" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/brand_primary</item>
+        <item name="colorOnSecondary">@color/white</item>
+    </style>
+</resources>
