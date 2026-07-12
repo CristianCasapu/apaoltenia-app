@@ -101,7 +101,7 @@ prin push de tag. Cele doua cai sunt independente.
 git add .
 git commit -m "chore: pregatire release"
 git tag v1.0.0
-git push origin master
+git push origin main
 git push origin v1.0.0
 ```
 
@@ -125,7 +125,7 @@ Urmareste progresul la **GitHub → repo → Actions**.
 git commit -am "feat: descriere functii noi"
 # 3. Tag + push
 git tag v1.1.0
-git push origin master
+git push origin main
 git push origin v1.1.0
 ```
 
