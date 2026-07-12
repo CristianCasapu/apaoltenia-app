@@ -25,6 +25,15 @@ class MainActivity : AppCompatActivity() {
     /** Setat pe true dupa deblocarea reusita, ca sa injectam auto-login o singura data. */
     private var autoLoginArmed = false
 
+    /**
+     * True cand continutul paginii e derulat sus de tot. Raportat din JS,
+     * pentru ca aplicatia OpenUI5 a portalului deruleaza intr-un container
+     * intern — scroll-ul nativ al WebView-ului ramane mereu 0, iar fara acest
+     * semnal pull-to-refresh s-ar declansa de oriunde din pagina.
+     */
+    @Volatile
+    private var pageAtTop = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -38,6 +47,12 @@ class MainActivity : AppCompatActivity() {
         configureWebView()
 
         binding.swipeRefresh.setOnRefreshListener { binding.webView.reload() }
+        // Pull-to-refresh doar cand pagina e sus de tot: daca WebView-ul sau
+        // containerul intern al portalului mai poate derula in sus, gestul
+        // ramane un scroll normal.
+        binding.swipeRefresh.setOnChildScrollUpCallback { _, _ ->
+            binding.webView.canScrollVertically(-1) || !pageAtTop
+        }
 
         onBackPressedDispatcher.addCallback(this) {
             if (binding.webView.canGoBack()) binding.webView.goBack() else finish()
@@ -159,7 +174,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         web.addJavascriptInterface(
-            WebAppInterface { email, password -> onCredentialsCaptured(email, password) },
+            WebAppInterface(
+                onCredentialsCaptured = { email, password ->
+                    onCredentialsCaptured(email, password)
+                },
+                onScrollStatusChanged = { atTop -> pageAtTop = atTop }
+            ),
             "AndroidBridge"
         )
 
@@ -190,6 +210,8 @@ class MainActivity : AppCompatActivity() {
             override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 binding.progressBar.visibility = View.VISIBLE
+                // Document nou -> pornim din varf pana raporteaza JS-ul altceva.
+                pageAtTop = true
             }
 
             override fun onPageCommitVisible(view: WebView, url: String) {
@@ -207,6 +229,7 @@ class MainActivity : AppCompatActivity() {
                 // Reinjectam la final: aplicatia OpenUI5 isi incarca CSS-ul
                 // asincron si vrem ca foaia noastra sa ramana in documentul final.
                 injectCustomStyle(url)
+                injectScrollHook(url)
 
                 if (!url.contains("login.jsp", ignoreCase = true)) return
 
@@ -260,6 +283,40 @@ class MainActivity : AppCompatActivity() {
               el.id = id;
               el.textContent = css;
               (document.head || document.documentElement).appendChild(el);
+            })();
+        """.trimIndent()
+        binding.webView.evaluateJavascript(js, null)
+    }
+
+    /**
+     * Injecteaza un ascultator de scroll (faza de captura, deci prinde si
+     * derularea containerelor interne OpenUI5) care raporteaza in Kotlin daca
+     * pagina e sus de tot. Idempotent: se instaleaza o singura data pe document.
+     */
+    private fun injectScrollHook(url: String) {
+        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        val js = """
+            (function() {
+              if (window.__apaoScrollHook) return;
+              window.__apaoScrollHook = true;
+              var atTop = true;
+              function report(v) {
+                if (v === atTop) return;
+                atTop = v;
+                if (window.AndroidBridge && AndroidBridge.onScrollStatus) {
+                  AndroidBridge.onScrollStatus(v);
+                }
+              }
+              document.addEventListener('scroll', function(e) {
+                var winTop = (window.scrollY || document.documentElement.scrollTop || 0) <= 0;
+                var elTop = true;
+                var t = e.target;
+                if (t && t !== document && t !== document.documentElement &&
+                    t !== document.body && typeof t.scrollTop === 'number') {
+                  elTop = t.scrollTop <= 0;
+                }
+                report(winTop && elTop);
+              }, { capture: true, passive: true });
             })();
         """.trimIndent()
         binding.webView.evaluateJavascript(js, null)
