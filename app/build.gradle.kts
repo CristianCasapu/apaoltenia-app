@@ -26,8 +26,8 @@ android {
         applicationId = "ro.apaoltenia.client"
         minSdk = 30          // Redmi Note 13 Pro ships with Android 13 (API 33)
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         // Optimizat pentru Xiaomi Redmi Note 13 Pro (Snapdragon / arm64-v8a).
         // Aplicatia e bazata pe WebView (fara librarii native .so), deci arm64
