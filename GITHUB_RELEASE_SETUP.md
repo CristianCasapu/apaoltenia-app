@@ -73,7 +73,26 @@ Parola aleasa pentru key (poate fi aceeasi cu KEYSTORE_PASSWORD).
 
 ---
 
-## PASUL 4 — Primul release
+## Alternativa rapida — `release.ps1` (build local + release local)
+
+Daca vrei sa compilezi pe masina ta si sa publici imediat APK-ul local (fara
+sa astepti GitHub Actions), foloseste scriptul:
+
+```powershell
+.\release.ps1 -Version 1.0.1
+```
+
+Cerinte: `keystore.properties` completat (PASUL 2) si acces la GitHub (git deja
+autentificat sau `gh auth login`). Scriptul urca versiunea, compileaza APK-ul
+semnat, il pune in `dist\` si creeaza release-ul. Creeaza tag-ul prin API, deci
+**nu declanseaza si workflow-ul** — nu ai build dublu.
+
+Pentru Secrets din GitHub Actions (PASUL 3) ai nevoie DOAR daca preferi calea
+prin push de tag. Cele doua cai sunt independente.
+
+---
+
+## PASUL 4 — Primul release (prin GitHub Actions)
 
 1. Verifica versiunea in `app/build.gradle.kts` (`versionName` / `versionCode`).
 2. Publica:

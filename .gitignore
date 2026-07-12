@@ -9,6 +9,7 @@
 .externalNativeBuild
 .cxx
 app/build/
+dist/
 
 # Semnare — NU urca niciodata keystore-ul sau parolele pe GitHub.
 keystore.properties

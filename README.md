@@ -79,8 +79,28 @@ Wrapper-ul Gradle este inclus.
 
 Pentru APK de release semnat, vezi [`GITHUB_RELEASE_SETUP.md`](GITHUB_RELEASE_SETUP.md).
 Pe scurt: copiaza `keystore.properties.example` → `keystore.properties`,
-completeaza parolele si ruleaza `./gradlew assembleRelease`. Pe GitHub,
-un tag `vX.Y.Z` declanseaza build-ul si publica automat release-ul.
+completeaza parolele si ruleaza `./gradlew assembleRelease`.
+
+### Release rapid dintr-o comanda (`release.ps1`)
+
+Compileaza APK-ul semnat **si** publica release-ul cu APK-ul local, dintr-un
+singur pas (Windows / PowerShell):
+
+```powershell
+.\release.ps1 -Version 1.0.1            # build semnat + release pe GitHub
+.\release.ps1 -Version 1.0.1 -NoPublish # doar compileaza (dist\ApaOltenia-v1.0.1.apk)
+.\release.ps1 -Debug                    # APK de debug, rapid, pentru test
+```
+
+Scriptul urca `versionName`/`versionCode`, compileaza, copiaza APK-ul in `dist\`
+si creeaza release-ul prin API-ul GitHub. **Doua cai separate**, alege una:
+
+- **`release.ps1`** — build local rapid, publica APK-ul de pe masina ta.
+- **Push de tag** (`git tag vX.Y.Z && git push origin vX.Y.Z`) — build in cloud
+  prin GitHub Actions.
+
+(`release.ps1` creeaza tag-ul prin API, deci NU declanseaza si workflow-ul —
+nu vei avea build dublu.)
 
 ## Structura
 
