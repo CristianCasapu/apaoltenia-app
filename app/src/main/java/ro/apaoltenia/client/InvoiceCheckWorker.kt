@@ -1,6 +1,7 @@
 package ro.apaoltenia.client
 
 import android.content.Context
+import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -78,6 +79,10 @@ class InvoiceCheckWorker(
                     if (resumed) return@evaluateJavascript
                     resumed = true
                     val text = decodeJsString(raw)
+                    // Serverul poate reimprospata cookie-ul de sesiune la fiecare
+                    // cerere; il scriem pe disc ca verificarea din fundal sa
+                    // prelungeasca sesiunea, nu doar sa o citeasca.
+                    CookieManager.getInstance().flush()
                     view.destroy()
                     cont.resume(text)
                 }

@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             showLockedState()
             runBiometric()
         } else {
-            openLoginPage()
+            openPortal()
         }
 
         checkForUpdate()
@@ -107,20 +107,45 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Cand aplicatia trece in fundal sau se inchide, fortam scrierea pe disc a
+     * cookie-urilor de sesiune. WebView le tine altfel in memorie si le
+     * persista doar periodic, asa ca fara acest flush o sesiune inca valida
+     * s-ar putea pierde cand sistemul ucide procesul. Impreuna cu incarcarea
+     * directa a `index.html`, asta pastreaza sesiunea cat mai mult posibil.
+     */
+    override fun onPause() {
+        super.onPause()
+        persistSession()
+    }
+
+    /** Scrie imediat pe disc cookie-urile de sesiune ale WebView-ului. */
+    private fun persistSession() {
+        CookieManager.getInstance().flush()
+    }
+
     private fun runBiometric() {
         biometric.authenticate(
             onSuccess = {
                 autoLoginArmed = true
-                openLoginPage()
+                openPortal()
             },
             onError = { message -> showLockedState(message) },
             onFailed = { showLockedState(getString(R.string.unlock_failed)) }
         )
     }
 
-    private fun openLoginPage() {
+    /**
+     * Deschide direct aplicatia portalului. Daca sesiunea salvata e inca
+     * valida, `index.html` se incarca imediat — fara login si fara Turnstile.
+     * Daca sesiunea a expirat, portalul redirectioneaza automat la `login.jsp`,
+     * moment in care `onPageFinished` armeaza completarea (si, optional,
+     * trimiterea) automata a datelor. Astfel evitam pasul de login ori de cate
+     * ori sesiunea mai e valabila.
+     */
+    private fun openPortal() {
         showWebView()
-        binding.webView.loadUrl(LOGIN_URL)
+        binding.webView.loadUrl(APP_URL)
     }
 
     private fun showWebView() {
@@ -156,7 +181,7 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton(R.string.forget_yes) { _, _ ->
                 store.clear()
                 autoLoginArmed = false
-                openLoginPage()
+                openPortal()
             }
             .setNegativeButton(R.string.save_no, null)
             .show()
@@ -256,7 +281,16 @@ class MainActivity : AppCompatActivity() {
                 injectChartFix(url)
                 injectPortalEnhancements(url)
 
-                if (!url.contains("login.jsp", ignoreCase = true)) return
+                if (!url.contains("login.jsp", ignoreCase = true)) {
+                    // Suntem intr-o pagina a aplicatiei => sesiune valida.
+                    // Scriem cookie-urile pe disc imediat, ca sesiunea sa
+                    // supravietuiasca inchiderii sau uciderii procesului din
+                    // background. `autoLoginArmed` ramane armat: daca sesiunea
+                    // expira intre timp si portalul revine la login.jsp,
+                    // completarea automata se declanseaza singura.
+                    persistSession()
+                    return
+                }
 
                 if (autoLoginArmed && store.hasCredentials) {
                     val email = store.email
@@ -767,7 +801,10 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val PORTAL_DOMAIN = "apaoltenia.ro"
-        private const val LOGIN_URL =
-            "https://clienti.apaoltenia.ro/self_utilities/login.jsp"
+        // Punctul de intrare in aplicatia portalului. Deschis direct la
+        // pornire: daca sesiunea e valida se incarca pe loc, altfel portalul
+        // redirectioneaza singur la pagina de login (login.jsp).
+        private const val APP_URL =
+            "https://clienti.apaoltenia.ro/self_utilities//oui/cl/index.html"
     }
 }

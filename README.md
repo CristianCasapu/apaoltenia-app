@@ -18,15 +18,24 @@ pe dispozitivul tau.
    cheie generata si pastrata in Android Keystore, hardware-backed — cheia nu
    poate fi extrasa din telefon).
 3. **La urmatoarele deschideri** – aplicatia cere deblocarea prin
-   amprenta / fata / model / PIN. Dupa deblocare, **completeaza automat**
-   emailul si parola. Cu **Autentificare automata** activa (implicit), trimite
-   si formularul imediat ce verificarea Cloudflare e trecuta — adesea complet
-   automat. Daca preferi sa apesi tu Login, dezactiveaza optiunea din **Setari**.
+   amprenta / fata / model / PIN. Dupa deblocare, **incarca direct aplicatia
+   portalului**: daca sesiunea ta e inca valida, intri **fara login si fara
+   Cloudflare**. Doar daca sesiunea a expirat portalul revine la pagina de
+   login — atunci aplicatia **completeaza automat** emailul si parola. Cu
+   **Autentificare automata** activa (implicit), trimite si formularul imediat
+   ce verificarea Cloudflare e trecuta — adesea complet automat. Daca preferi
+   sa apesi tu Login, dezactiveaza optiunea din **Setari**.
 4. **Daca iti schimbi parola in portal** – la urmatoarea logare manuala
    aplicatia detecteaza ca datele difera si iti propune sa le actualizeze.
 
 ## Functii
 
+- 🚪 **Acces direct cand esti deja autentificat**: la pornire aplicatia incarca
+  direct pagina interna a portalului; daca sesiunea e valabila intri imediat,
+  fara login si fara Cloudflare. Doar cand sesiunea a expirat se afiseaza login.
+- 💾 **Sesiune pastrata cat mai mult**: cookie-urile de sesiune sunt scrise pe
+  disc la trecerea in fundal si dupa fiecare pagina, ca sesiunea sa
+  supravietuiasca inchiderii aplicatiei sau uciderii procesului de catre sistem.
 - 🔒 **Deblocare biometrica** inainte de auto-login.
 - ⚡ **Autentificare automata** (optionala, din Setari): dupa deblocare, aplicatia
   completeaza datele si trimite formularul imediat ce verificarea Cloudflare este

@@ -10,6 +10,13 @@ object Changelog {
 
     val entries: List<Entry> = listOf(
         Entry(
+            "1.5.0", "13.07.2026", listOf(
+                "Acces direct in aplicatie cand sesiunea e inca valida (fara login)",
+                "Sesiunea de login se pastreaza mult mai mult, chiar dupa inchidere sau in fundal",
+                "Verificarea din fundal prelungeste sesiunea, nu doar o citeste"
+            )
+        ),
+        Entry(
             "1.4.0", "13.07.2026", listOf(
                 "Navigatie rafinata: fara bordurile groase din meniul lateral",
                 "Istoric versiuni (acest ecran) accesibil din Setari",
