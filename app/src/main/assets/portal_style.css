@@ -276,31 +276,98 @@ html .fontColor {
   color: var(--apao-on-primary) !important;
 }
 
-/* -- meniul lateral -- */
+/* -- meniul lateral (NavigationList — clase noi sapTntNL* + vechi sapTntNav*) -- */
 html .sapContrast.sapTntSideNavigation,
 html .sapContrast .sapTntSideNavigation,
-html .sapTntSideNavigation {
+html .sapTntSideNavigation,
+html .sapTntSideNavigationFixed,
+html .sapTntSideNavigationFlexible,
+html .sapTntSideNavigationFlexibleContent {
   background: var(--apao-surface) !important;
   border-right: 1px solid var(--apao-divider) !important;
+  color: var(--apao-text) !important;
 }
+html .sapTntNL,
+html .sapTntNLIFirstLevel,
+html .sapTntNLIGroup {
+  background: transparent !important;
+}
+/* casuta fiecarui item: rotunjita, cu spatiere si tinta de atingere confortabila */
+html .sapTntNLI {
+  border-radius: 10px !important;
+  margin: 2px 8px !important;
+  transition: background-color 0.15s ease !important;
+}
+html .sapTntNLI > a {
+  min-height: 44px !important;
+  border-radius: 10px !important;
+}
+html .sapTntNLIText,
 html .sapTntNavLI .sapTntNavLIGroup,
 html .sapTntNavLIText {
   color: var(--apao-text) !important;
 }
+html .sapTntNLIIcon {
+  color: var(--apao-text-muted) !important;
+}
+/* hover */
+html .sapTntNLI:hover,
+html .sapTntNLI > a:hover {
+  background: var(--apao-primary-soft) !important;
+}
+/* item selectat: fundal brand-soft, text + iconita brand */
+html .sapTntNLISelected,
+html .sapTntNLISelected > a,
 html .sapTntNavLIItemSelected {
   background: var(--apao-primary-soft) !important;
   border-left: 3px solid var(--apao-primary) !important;
 }
+html .sapTntNLISelected .sapTntNLIText,
+html .sapTntNLISelected .sapTntNLIIcon,
+html .sapTntNLISelectionIndicator,
 html .sapContrast.sapTntNavLIItemSelected .sapTntNavLIGroup,
 html .sapContrast .sapTntNavLIItemSelected .sapTntNavLIGroup {
-  background: var(--apao-primary-soft) !important;
-  color: var(--apao-heading) !important;
+  color: var(--apao-primary) !important;
+}
+html .sapTntNLISelected .sapTntNLIText {
+  font-weight: 600 !important;
+}
+/* separator + zona fixa de jos (email/logout) */
+html .sapTntSideNavigationSeparator {
+  background: var(--apao-divider) !important;
+  border-color: var(--apao-divider) !important;
+}
+
+/* item de navigatie propriu: "Accesibilitate" (adaugat din aplicatie) */
+html #apao-a11y-item .apao-a11y-icon {
+  font-family: inherit !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  color: var(--apao-text-muted) !important;
+}
+html #apao-a11y-item .sapTntNLIText {
+  color: var(--apao-text) !important;
 }
 
 /* -- butoane -- */
 html .sapMBtnInner {
   border-radius: 9px !important;
   transition: filter 0.15s ease !important;
+}
+/* text centrat vertical + orizontal in toate butoanele */
+html .sapMBtn .sapMBtnInner,
+html .sapMBtnBase .sapMBtnInner {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+html .sapMBtnContent {
+  text-align: center !important;
+  line-height: normal !important;
+}
+html .face .content .field-wrapper input[type="submit"],
+html .psw, html .signup, html .singin {
+  text-align: center !important;
 }
 html.apao-dark .sapMBtnInner.sapMBtnDefault,
 html.apao-dark .sapMBtnInner.sapMBtnTransparent {
@@ -622,6 +689,46 @@ html.apao-dark .sapMBtnInner.sapMBtnReject {
 html.apao-dark .sapMBtnReject .sapMBtnContent,
 html.apao-dark .sapMBtnInner.sapMBtnReject .sapMBtnIcon {
   color: #ff9a8f !important;
+}
+
+/* ============================================================
+   4. PAGINA DE CONTACT — mai prietenoasa
+   Editorul de mesaj (CKEditor) avea o bara de instrumente greoaie
+   care se ingramadea pe verticala pe mobil. O ascundem si lasam o
+   zona de scriere curata, larga si tematizata (light/dark).
+   ============================================================ */
+
+/* ascunde bara de instrumente si bara de jos a CKEditor-ului */
+html .cke_top,
+html .cke_bottom {
+  display: none !important;
+}
+/* containerul editorului: latime plina, colturi rotunjite, tematizat */
+html .cke,
+html .cke_chrome,
+html .cke_inner,
+html .cke_contents {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: none !important;
+  background: transparent !important;
+}
+html .cke_chrome {
+  border: 1.5px solid var(--apao-field-border) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+}
+html .cke_contents {
+  min-height: 200px !important;
+  background: var(--apao-field-bg) !important;
+}
+/* corpul editabil (iframe) este stilizat separat din aplicatie pentru dark */
+
+/* spatiere confortabila intre randurile formularului de contact */
+html .sapUiRespGridSpanS12 > .sapUiRespGrid,
+html .sapUiForm .sapUiFormElement {
+  margin-bottom: 4px !important;
 }
 
 /* -- scrollbar discret pe tema intunecata -- */

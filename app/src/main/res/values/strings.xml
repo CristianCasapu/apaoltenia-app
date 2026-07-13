@@ -16,6 +16,14 @@
     <string name="forget_title">Stergi datele salvate?</string>
     <string name="forget_message">Emailul si parola criptate vor fi sterse de pe dispozitiv. Va trebui sa te autentifici manual din nou.</string>
     <string name="forget_yes">Sterge</string>
+
+    <!-- Securizare stergere cont -->
+    <string name="delete_confirm_title">Confirma stergerea contului</string>
+    <string name="delete_confirm_message">Aceasta operatie sterge definitiv toate datele contului din portal. Pentru siguranta, introdu parola contului ca sa confirmi.</string>
+    <string name="delete_password_hint">Parola contului</string>
+    <string name="delete_confirm_yes">Sterge contul</string>
+    <string name="delete_confirm_cancel">Renunta</string>
+    <string name="delete_wrong_password">Parola incorecta. Stergerea a fost anulata.</string>
     <string name="load_error">Pagina nu a putut fi incarcata. Verifica conexiunea la internet.</string>
     <string name="retry_button">Reincearca</string>
 

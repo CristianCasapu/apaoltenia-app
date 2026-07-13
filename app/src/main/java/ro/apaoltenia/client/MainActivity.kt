@@ -3,7 +3,11 @@ package ro.apaoltenia.client
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.Toast
 import android.webkit.CookieManager
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -196,7 +200,8 @@ class MainActivity : AppCompatActivity() {
                 onCredentialsCaptured = { email, password ->
                     onCredentialsCaptured(email, password)
                 },
-                onScrollStatusChanged = { atTop -> pageAtTop = atTop }
+                onScrollStatusChanged = { atTop -> pageAtTop = atTop },
+                onDeleteAccountRequested = { runOnUiThread { confirmDeleteAccount() } }
             ),
             "AndroidBridge"
         )
@@ -249,6 +254,7 @@ class MainActivity : AppCompatActivity() {
                 injectCustomStyle(url)
                 injectScrollHook(url)
                 injectChartFix(url)
+                injectPortalEnhancements(url)
 
                 if (!url.contains("login.jsp", ignoreCase = true)) return
 
@@ -403,6 +409,171 @@ class MainActivity : AppCompatActivity() {
             })();
         """.trimIndent()
         binding.webView.evaluateJavascript(js, null)
+    }
+
+    /**
+     * Imbunatatiri de UX injectate peste aplicatia OpenUI5 (SPA cu rutare pe
+     * hash, deci folosim un MutationObserver + interval ca sa prindem si
+     * navigarile client-side):
+     *
+     *  1. Muta meniul de accesibilitate (widget-ul flotant `asw-menu-btn`) intr-un
+     *     element de navigatie propriu, "Accesibilitate", asezat dupa "Stergere
+     *     cont"; butonul flotant original este ascuns.
+     *  2. Securizeaza "Stergere cont": intercepteaza confirmarea portalului si
+     *     cere aplicatiei verificarea prin parola (AndroidBridge). Stergerea se
+     *     produce doar dupa ce parola corecta declanseaza `__apaoDoDelete`.
+     *  3. Tematizeaza corpul editabil (iframe) al editorului de pe pagina de
+     *     Contact pentru modul intunecat.
+     */
+    private fun injectPortalEnhancements(url: String) {
+        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        val dark = isDarkTheme()
+        val js = """
+            (function() {
+              if (window.__apaoEnh) { if (window.__apaoSetDark) window.__apaoSetDark($dark); return; }
+              window.__apaoEnh = true;
+              window.__apaoDark = $dark;
+              window.__apaoSetDark = function(d) { window.__apaoDark = d; styleEditorFrame(); };
+
+              function addA11yItem() {
+                if (document.getElementById('apao-a11y-item')) return;
+                if (!document.querySelector('.sapTntNL')) return;
+                var sterg = null;
+                document.querySelectorAll('.sapTntNLIText').forEach(function(s) {
+                  if (/Stergere/i.test(s.textContent)) sterg = s.closest('li');
+                });
+                if (!sterg) return;
+                var li = document.createElement('li');
+                li.id = 'apao-a11y-item';
+                li.setAttribute('role', 'none');
+                li.innerHTML = '<div class="sapTntNLI sapTntNLIFirstLevel">' +
+                  '<a role="treeitem" title="Accesibilitate" tabindex="0" style="cursor:pointer;">' +
+                  '<span class="sapTntNLIIcon apao-a11y-icon" aria-hidden="true"></span>' +
+                  '<span class="sapMText sapTntNLIText sapMTextNoWrap" style="text-align:left;">Accesibilitate</span>' +
+                  '</a></div>';
+                li.querySelector('.apao-a11y-icon').textContent = String.fromCharCode(0x267F);
+                sterg.parentNode.insertBefore(li, sterg.nextSibling);
+                li.querySelector('a').addEventListener('click', function(e) {
+                  e.preventDefault();
+                  var b = document.querySelector('.asw-menu-btn');
+                  if (b) b.click();
+                });
+              }
+
+              function hideFloating() {
+                var b = document.querySelector('.asw-menu-btn');
+                if (b) b.style.setProperty('display', 'none', 'important');
+              }
+
+              function confirmDialog() {
+                var d = document.querySelectorAll('.sapMDialog');
+                for (var i = 0; i < d.length; i++) {
+                  if (/stergeti contul/i.test(d[i].innerText || '')) return d[i];
+                }
+                return null;
+              }
+              function uicontrol(dom) {
+                var el = dom;
+                while (el) {
+                  if (el.id && window.sap && sap.ui && sap.ui.getCore) {
+                    var c = sap.ui.getCore().byId(el.id);
+                    if (c) return c;
+                  }
+                  el = el.parentElement;
+                }
+                return null;
+              }
+              function btnByText(dlg, re) {
+                var b = dlg.querySelectorAll('.sapMBtn');
+                for (var i = 0; i < b.length; i++) {
+                  if (re.test((b[i].textContent || '').trim())) return b[i];
+                }
+                return null;
+              }
+              window.__apaoDoDelete = function() {
+                var d = confirmDialog(); if (!d) return false;
+                var da = btnByText(d, /^Da$/i); if (!da) return false;
+                var c = uicontrol(da);
+                if (c && c.firePress) { c.firePress(); return true; }
+                da.click(); return true;
+              };
+              window.__apaoCancelDelete = function() {
+                var d = confirmDialog(); if (!d) return;
+                var nu = btnByText(d, /^Nu$/i);
+                if (nu) { var c = uicontrol(nu); if (c && c.firePress) c.firePress(); else nu.click(); }
+              };
+              function deleteGuard() {
+                var d = confirmDialog();
+                if (!d || d.__apaoSeen) return;
+                d.__apaoSeen = true;
+                if (window.AndroidBridge && AndroidBridge.requestDeleteAccount) {
+                  AndroidBridge.requestDeleteAccount();
+                }
+              }
+
+              function styleEditorFrame() {
+                var fr = document.querySelector('.cke_wysiwyg_frame');
+                if (!fr) return;
+                try {
+                  var doc = fr.contentDocument;
+                  if (!doc || !doc.body) return;
+                  if (window.__apaoDark) {
+                    doc.body.style.setProperty('background', '#10202d', 'important');
+                    doc.body.style.setProperty('color', '#d8e5ef', 'important');
+                  } else {
+                    doc.body.style.removeProperty('background');
+                    doc.body.style.removeProperty('color');
+                  }
+                } catch (e) {}
+              }
+
+              function tick() { addA11yItem(); hideFloating(); deleteGuard(); styleEditorFrame(); }
+              try { new MutationObserver(tick).observe(document.body, { childList: true, subtree: true }); } catch (e) {}
+              setInterval(tick, 700);
+              tick();
+            })();
+        """.trimIndent()
+        binding.webView.evaluateJavascript(js, null)
+    }
+
+    /**
+     * Verificarea suplimentara de securitate pentru stergerea contului: cere
+     * parola contului si permite stergerea doar daca aceasta coincide cu cea
+     * salvata criptat pe dispozitiv. Fara parola salvata local nu putem verifica,
+     * asa ca lasam confirmarea portalului sa continue.
+     */
+    private fun confirmDeleteAccount() {
+        val stored = store.password
+        if (stored == null) {
+            binding.webView.evaluateJavascript("window.__apaoDoDelete && window.__apaoDoDelete();", null)
+            return
+        }
+        val input = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            hint = getString(R.string.delete_password_hint)
+        }
+        val pad = (20 * resources.displayMetrics.density).toInt()
+        val container = FrameLayout(this).apply {
+            setPadding(pad, pad / 2, pad, 0)
+            addView(input)
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.delete_confirm_title)
+            .setMessage(R.string.delete_confirm_message)
+            .setView(container)
+            .setCancelable(false)
+            .setPositiveButton(R.string.delete_confirm_yes) { _, _ ->
+                if (input.text.toString() == stored) {
+                    binding.webView.evaluateJavascript("window.__apaoDoDelete && window.__apaoDoDelete();", null)
+                } else {
+                    Toast.makeText(this, R.string.delete_wrong_password, Toast.LENGTH_SHORT).show()
+                    binding.webView.evaluateJavascript("window.__apaoCancelDelete && window.__apaoCancelDelete();", null)
+                }
+            }
+            .setNegativeButton(R.string.delete_confirm_cancel) { _, _ ->
+                binding.webView.evaluateJavascript("window.__apaoCancelDelete && window.__apaoCancelDelete();", null)
+            }
+            .show()
     }
 
     private fun isDarkTheme(): Boolean {

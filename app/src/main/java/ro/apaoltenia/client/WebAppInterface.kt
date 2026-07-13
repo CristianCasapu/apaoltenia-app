@@ -17,7 +17,8 @@ import android.webkit.JavascriptInterface
  */
 class WebAppInterface(
     private val onCredentialsCaptured: (email: String, password: String) -> Unit,
-    private val onScrollStatusChanged: (atTop: Boolean) -> Unit
+    private val onScrollStatusChanged: (atTop: Boolean) -> Unit,
+    private val onDeleteAccountRequested: () -> Unit
 ) {
     @JavascriptInterface
     fun captureCredentials(email: String, password: String) {
@@ -29,5 +30,14 @@ class WebAppInterface(
     @JavascriptInterface
     fun onScrollStatus(atTop: Boolean) {
         onScrollStatusChanged(atTop)
+    }
+
+    /**
+     * JS-ul a interceptat confirmarea de stergere a contului si cere aplicatiei
+     * verificarea suplimentara prin parola inainte de a permite stergerea.
+     */
+    @JavascriptInterface
+    fun requestDeleteAccount() {
+        onDeleteAccountRequested()
     }
 }

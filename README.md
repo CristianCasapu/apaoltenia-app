@@ -34,6 +34,14 @@ pe dispozitivul tau.
   verificarea anti-bot.
 - 🎨 **Bara de sus brandata**, coerenta cu antetul portalului, in tema clara si
   intunecata.
+- 🧭 **Meniu lateral restilizat** in ambele teme (carduri rotunjite, text si
+  iconite clare, element selectat evidentiat brand).
+- ♿ **Meniu de accesibilitate in navigatie**: optiunea a fost mutata din butonul
+  flotant intr-un element propriu, dupa "Stergere cont".
+- 🛡️ **Stergere cont protejata cu parola**: contul nu poate fi sters decat dupa
+  ce introduci parola contului in aplicatie si confirmi.
+- ✉️ **Pagina de contact simplificata**: editorul de mesaj a fost degajat de bara
+  de instrumente stufoasa, cu o zona de scriere curata, adaptata temei.
 - 🌗 **Temă luminoasă / întunecată / ca sistemul**, comutabila din **Setari**.
   Tema intunecata este **desenata manual** printr-o foaie de stil proprie
   (nu algorithmic darkening), cu culori de brand pe toate ecranele portalului.
