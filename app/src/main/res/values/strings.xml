@@ -43,9 +43,12 @@
     <!-- Actualizari -->
     <string name="update_checking">Se verifica actualizarile…</string>
     <string name="update_available_title">Actualizare disponibila</string>
-    <string name="update_available_message">Versiunea %1$s este disponibila. O descarci acum?</string>
+    <string name="update_available_message">Versiunea %1$s este disponibila. O instalezi acum?</string>
     <string name="update_download">Descarca</string>
+    <string name="update_install">Instaleaza</string>
     <string name="update_later">Mai tarziu</string>
+    <string name="update_downloading">Se descarca actualizarea…</string>
+    <string name="update_download_failed">Descarcarea actualizarii a esuat. Verifica conexiunea si incearca din nou.</string>
     <string name="update_up_to_date">Ai deja cea mai noua versiune.</string>
     <string name="update_check_failed">Nu am putut verifica actualizarile. Incearca mai tarziu.</string>
 

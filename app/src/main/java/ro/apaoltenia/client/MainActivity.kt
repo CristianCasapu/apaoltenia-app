@@ -12,8 +12,10 @@ import android.webkit.WebViewClient
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
+import kotlinx.coroutines.launch
 import ro.apaoltenia.client.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -65,6 +67,22 @@ class MainActivity : AppCompatActivity() {
             runBiometric()
         } else {
             openLoginPage()
+        }
+
+        checkForUpdate()
+    }
+
+    /**
+     * Verificare automata de versiune la fiecare pornire. Daca exista o
+     * versiune noua, dialogul descarca si instaleaza APK-ul direct din
+     * aplicatie. Esecurile (offline, rate-limit) sunt silentioase.
+     */
+    private fun checkForUpdate() {
+        lifecycleScope.launch {
+            val update = UpdateChecker.check(BuildConfig.VERSION_NAME) ?: return@launch
+            if (!isFinishing && !isDestroyed) {
+                UpdateManager.promptAndInstall(this@MainActivity, update)
+            }
         }
     }
 
@@ -230,6 +248,7 @@ class MainActivity : AppCompatActivity() {
                 // asincron si vrem ca foaia noastra sa ramana in documentul final.
                 injectCustomStyle(url)
                 injectScrollHook(url)
+                injectChartFix(url)
 
                 if (!url.contains("login.jsp", ignoreCase = true)) return
 
@@ -264,7 +283,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Injecteaza foaia de stil custom peste paginile portalului. CSS-ul este
+     * Injecteaza foaia de stil custom peste paginile portalului si comuta
+     * clasa `apao-dark` dupa tema aplicatiei (temele light/dark ale portalului
+     * sunt definite prin CSS variables in portal_style.css). CSS-ul este
      * transportat Base64 ca sa nu depinda de escapari; JS-ul inlocuieste
      * elementul <style> daca exista deja (idempotent la reincarcari).
      */
@@ -273,8 +294,10 @@ class MainActivity : AppCompatActivity() {
         val b64 = android.util.Base64.encodeToString(
             portalCss.toByteArray(Charsets.UTF_8), android.util.Base64.NO_WRAP
         )
+        val dark = isDarkTheme()
         val js = """
             (function() {
+              document.documentElement.classList.toggle('apao-dark', $dark);
               var id = 'apao-custom-style';
               var css = atob('$b64');
               var el = document.getElementById(id);
@@ -322,13 +345,81 @@ class MainActivity : AppCompatActivity() {
         binding.webView.evaluateJavascript(js, null)
     }
 
-    /** Activeaza randarea intunecata a paginii web cand aplicatia e pe tema dark. */
-    private fun applyWebViewTheme() {
-        if (!WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) return
+    /**
+     * Graficul de consum al portalului (Chart.js) se randeaza cu inaltime foarte
+     * mica pe mobil (maintainAspectRatio implicit), asa ca cele 12 luni si 4 ani
+     * se ingramadesc ilizibil. Injectam un hook persistent care, la aparitia
+     * oricarui grafic (inclusiv dupa navigarea client-side din SPA-ul OpenUI5),
+     * ii da o inaltime utila, dezactiveaza raportul de aspect fix si roteste
+     * etichetele lunilor. Hook-ul se instaleaza o singura data si urmareste DOM-ul
+     * printr-un MutationObserver + un interval de siguranta.
+     */
+    private fun injectChartFix(url: String) {
+        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        val js = """
+            (function() {
+              if (window.__apaoChartHook) return;
+              window.__apaoChartHook = true;
+              function fix() {
+                if (!window.Chart || !window.Chart.instances) return;
+                Object.keys(window.Chart.instances).forEach(function(k) {
+                  var inst = window.Chart.instances[k];
+                  if (!inst) return;
+                  var canvas = inst.canvas || (inst.chart && inst.chart.canvas);
+                  if (!canvas) return;
+                  var container = canvas.parentElement;
+                  if (container && container.style.height !== '320px') {
+                    container.style.height = '320px';
+                    container.style.width = '100%';
+                  }
+                  if (!inst.__apaoFixed) {
+                    inst.__apaoFixed = true;
+                    inst.options.maintainAspectRatio = false;
+                    try {
+                      var xa = inst.options.scales.xAxes[0];
+                      xa.ticks = xa.ticks || {};
+                      xa.ticks.maxRotation = 60; xa.ticks.minRotation = 45;
+                      xa.ticks.autoSkip = false; xa.ticks.fontSize = 10;
+                    } catch (e) {}
+                    try {
+                      if (inst.options.legend) {
+                        inst.options.legend.position = 'top';
+                        if (inst.options.legend.labels) inst.options.legend.labels.boxWidth = 12;
+                      }
+                    } catch (e) {}
+                  }
+                  var r = canvas.getBoundingClientRect();
+                  if (r.height < 220) { try { inst.resize(); inst.update(); } catch (e) {} }
+                });
+              }
+              try {
+                new MutationObserver(fix).observe(document.body, { childList: true, subtree: true });
+              } catch (e) {}
+              setInterval(fix, 1200);
+              fix();
+            })();
+        """.trimIndent()
+        binding.webView.evaluateJavascript(js, null)
+    }
+
+    private fun isDarkTheme(): Boolean {
         val nightMode = resources.configuration.uiMode and
             android.content.res.Configuration.UI_MODE_NIGHT_MASK
-        val isDark = nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES
-        WebSettingsCompat.setAlgorithmicDarkeningAllowed(binding.webView.settings, isDark)
+        return nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES
+    }
+
+    /**
+     * Fundalul WebView-ului pe culoarea temei, ca sa nu apara un "blit" alb
+     * inainte de injectarea stilului. Tema intunecata a paginii vine din
+     * CSS-ul propriu (clasa apao-dark), nu din algorithmic darkening —
+     * astfel culorile raman exact cele alese, in ambele teme.
+     */
+    private fun applyWebViewTheme() {
+        val background = if (isDarkTheme()) 0xFF0D1720.toInt() else 0xFFF4F9FD.toInt()
+        binding.webView.setBackgroundColor(background)
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+            WebSettingsCompat.setAlgorithmicDarkeningAllowed(binding.webView.settings, false)
+        }
     }
 
     /**
@@ -374,6 +465,15 @@ class MainActivity : AppCompatActivity() {
     /**
      * Injecteaza JS care, la trimiterea formularului de login, citeste valorile
      * introduse si le trimite in Kotlin prin AndroidBridge.
+     *
+     * Portalul NU trimite formularul printr-un submit normal: `onsubmit` face
+     * `preventDefault()`, iar butonul de Login apeleaza `form.submit()` din JS.
+     * Un `form.submit()` programatic NU declanseaza evenimentul 'submit', deci
+     * un simplu ascultator de 'submit' nu ar prinde niciodata datele (motivul
+     * pentru care salvarea si, implicit, deblocarea biometrica nu functionau).
+     * De aceea capturam pe trei cai: evenimentul 'submit' (Enter), click-ul pe
+     * buton (faza de captura) si ambalarea metodei `form.submit`. Prima captura
+     * reusita opreste restul, ca sa nu apara dialogul de salvare de doua ori.
      */
     private fun injectCaptureHook() {
         val js = """
@@ -389,17 +489,30 @@ class MainActivity : AppCompatActivity() {
                 return null;
               }
               var form = loginForm();
-              if (!form || form.__hooked) return;
-              form.__hooked = true;
-              form.addEventListener('submit', function() {
+              if (!form || form.__apaoHooked) return;
+              form.__apaoHooked = true;
+              var captured = false;
+              function grab() {
+                if (captured) return;
                 var pwd = form.querySelector('input[type=password]');
                 var user = form.querySelector('input[type=email]') ||
                            form.querySelector('input[type=text]') ||
                            form.querySelector('input:not([type=password]):not([type=hidden]):not([type=checkbox])');
                 if (user && pwd && user.value && pwd.value) {
+                  captured = true;
                   AndroidBridge.captureCredentials(user.value, pwd.value);
                 }
-              }, true);
+              }
+              form.addEventListener('submit', grab, true);
+              var btn = form.querySelector('input[type=submit], button[type=submit]');
+              if (btn) btn.addEventListener('click', grab, true);
+              var nativeSubmit = form.submit;
+              if (typeof nativeSubmit === 'function') {
+                form.submit = function() {
+                  grab();
+                  return nativeSubmit.apply(this, arguments);
+                };
+              }
             })();
         """.trimIndent()
         binding.webView.evaluateJavascript(js, null)

@@ -1,8 +1,6 @@
 package ro.apaoltenia.client
 
 import android.Manifest
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -114,14 +112,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun promptUpdate(update: UpdateChecker.Update) {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.update_available_title)
-            .setMessage(getString(R.string.update_available_message, update.version))
-            .setPositiveButton(R.string.update_download) { _, _ ->
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(update.downloadUrl)))
-            }
-            .setNegativeButton(R.string.update_later, null)
-            .show()
+        UpdateManager.promptAndInstall(this, update)
     }
 
     // ── Date salvate ─────────────────────────────────────────────────────────

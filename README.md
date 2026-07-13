@@ -26,15 +26,21 @@ pe dispozitivul tau.
 ## Functii
 
 - 🔒 **Deblocare biometrica** inainte de auto-login.
-- 🌗 **Temă luminoasă / întunecată / ca sistemul**, comutabila din **Setari**
-  si aplicata inclusiv paginii web (algorithmic darkening).
+- 🌗 **Temă luminoasă / întunecată / ca sistemul**, comutabila din **Setari**.
+  Tema intunecata este **desenata manual** printr-o foaie de stil proprie
+  (nu algorithmic darkening), cu culori de brand pe toate ecranele portalului.
 - 🎨 **Stil custom peste portal**: aplicatia injecteaza o foaie de stil proprie
-  (culori de brand, carduri rotunjite, umbre discrete) peste pagina de login si
-  peste aplicatia OpenUI5 a portalului, pentru un aspect modern si coerent.
+  (culori de brand, carduri rotunjite, umbre discrete, fara logo/fundal implicit)
+  peste pagina de login si peste aplicatia OpenUI5 a portalului, pentru un aspect
+  modern, coerent si optimizat pentru telefoane.
+- 📊 **Grafic de consum lizibil pe mobil**: graficul Chart.js al portalului este
+  redimensionat automat (inaltime utila, etichete rotite) ca sa nu mai apara
+  ingramadit.
 - 🔄 **Pull-to-refresh** si bara de progres la incarcare.
 - 🔔 **Notificari facturi noi** (best-effort — vezi mai jos).
-- ⬆️ **Verificare actualizari** din aplicatie (Setari → Verifica actualizari),
-  interogand GitHub Releases al acestui repo.
+- ⬆️ **Actualizare complet in aplicatie**: verificare automata la pornire si din
+  **Setari → Verifica actualizari**; APK-ul se **descarca si se instaleaza direct
+  din aplicatie**, fara redirectionare catre GitHub.
 
 ## Notificari pentru facturi noi — cum si limitele
 

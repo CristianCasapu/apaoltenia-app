@@ -71,13 +71,15 @@ jobs:
           body: |
             ## ApaOltenia Client v${{ steps.version.outputs.VERSION }}
 
-            ### Instalare manuala
+            ### Actualizare din aplicatie (recomandat)
+            Daca ai deja o versiune instalata, aplicatia verifica automat la
+            pornire si iti propune sa **descarce si sa instaleze** noua versiune
+            direct din aplicatie — nu mai e nevoie sa vii aici manual.
+
+            ### Instalare manuala (prima instalare)
             1. Descarca fisierul `.apk` de mai jos
             2. Pe telefon: **Setari → Securitate → Instalare aplicatii necunoscute**
             3. Deschide fisierul si instaleaza
-
-            > Din aplicatie: **Setari → Verifica actualizari** iti spune cand apare
-            > o versiune noua si te trimite direct la descarcare.
           files: "ApaOltenia-v${{ steps.version.outputs.VERSION }}.apk"
           draft: false
           prerelease: false

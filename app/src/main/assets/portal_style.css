@@ -1,37 +1,152 @@
 /* ============================================================
-   ApaOltenia Client - stil injectat peste portalul web
+   ApaOltenia Client — stil injectat peste portalul web
    Tinteste: login.jsp (pagina clasica) + aplicatia OpenUI5 (/oui/)
+
+   Sistem de teme prin CSS variables:
+     - valorile implicite (pe html) = tema LUMINOASA
+     - html.apao-dark suprascrie variabilele = tema INTUNECATA
+   Clasa `apao-dark` este comutata din Kotlin dupa tema aplicatiei.
+
+   Logo-ul si imaginea de fundal ale portalului sunt ascunse;
+   aplicatia foloseste branding propriu (gradient + picatura CSS).
+
    Regulile folosesc specificitate ridicata (html .clasa) + !important
    ca sa castige in fata CSS-ului portalului, indiferent de ordine.
    ============================================================ */
 
-/* ---------- fundal si tipografie comune ---------- */
+html {
+  /* brand */
+  --apao-primary: #0072BC;
+  --apao-primary-strong: #005A96;
+  --apao-primary-soft: rgba(0, 114, 188, 0.12);
+  --apao-on-primary: #ffffff;
+
+  /* suprafete */
+  --apao-bg: linear-gradient(165deg, #dceefb 0%, #f4f9fd 45%, #eaf3fa 100%);
+  --apao-surface: #ffffff;
+  --apao-surface-2: #f2f7fc;
+  --apao-surface-3: #e4eefa;
+  --apao-header: linear-gradient(180deg, #0078c6 0%, #0072BC 100%);
+
+  /* text */
+  --apao-text: #16324a;
+  --apao-text-muted: #5b7691;
+  --apao-heading: #005A96;
+  --apao-link: #0072BC;
+
+  /* margini si umbre */
+  --apao-border: rgba(0, 114, 188, 0.14);
+  --apao-divider: rgba(0, 90, 150, 0.10);
+  --apao-shadow: 0 12px 40px rgba(0, 68, 112, 0.14), 0 2px 8px rgba(0, 68, 112, 0.08);
+  --apao-shadow-soft: 0 3px 14px rgba(0, 68, 112, 0.09);
+
+  /* campuri */
+  --apao-field-bg: #fafcfe;
+  --apao-field-border: #cfe0ee;
+  --apao-focus-ring: rgba(0, 114, 188, 0.15);
+}
+
+html.apao-dark {
+  --apao-primary: #4FA3D8;
+  --apao-primary-strong: #74b9e4;
+  --apao-primary-soft: rgba(79, 163, 216, 0.16);
+  --apao-on-primary: #06121c;
+
+  --apao-bg: linear-gradient(165deg, #0d1720 0%, #101c28 50%, #0c1620 100%);
+  --apao-surface: #16232f;
+  --apao-surface-2: #1b2a38;
+  --apao-surface-3: #203243;
+  --apao-header: linear-gradient(180deg, #123146 0%, #0f2a3d 100%);
+
+  --apao-text: #d8e5ef;
+  --apao-text-muted: #8ba3b8;
+  --apao-heading: #7cc0ea;
+  --apao-link: #6fb6e6;
+
+  --apao-border: rgba(126, 180, 220, 0.16);
+  --apao-divider: rgba(126, 180, 220, 0.12);
+  --apao-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --apao-shadow-soft: 0 3px 14px rgba(0, 0, 0, 0.35);
+
+  --apao-field-bg: #10202d;
+  --apao-field-border: #2c4459;
+  --apao-focus-ring: rgba(111, 182, 230, 0.22);
+}
+
+/* ---------- tipografie comuna ---------- */
 html body {
   font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  color: var(--apao-text) !important;
+}
+
+/* ============================================================
+   0. BRANDING PROPRIU — fara logo si fara poza de fundal
+   ============================================================ */
+
+/* poza de fundal a portalului -> gradientul temei */
+html body {
+  background: var(--apao-bg) !important;
+}
+
+/* logo-ul portalului (login, coltul aplicatiei, bannerul OpenUI5) — ascuns peste tot */
+html .logoFirma,
+html .siglaCompanie,
+html img.img-rounded,
+html img.bannerResponsiveModification,
+html img[src*="LOGO_FIRMA"],
+html img[src*="BANNER_FIRMA"] {
+  display: none !important;
+}
+
+/* in locul logo-ului: o "picatura" desenata din CSS, sub titlul cardului */
+html .face .titluLogin {
+  margin-bottom: 1.25rem !important;
+}
+html .face .titluLogin h2::after {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 44px;
+  margin: 14px auto 0;
+  background: linear-gradient(180deg, var(--apao-primary) 0%, var(--apao-primary-strong) 100%);
+  border-radius: 0 50% 50% 50%;
+  transform: rotate(45deg);
+  box-shadow: 0 6px 18px var(--apao-primary-soft);
 }
 
 /* ============================================================
    1. PAGINA DE LOGIN (login.jsp)
    ============================================================ */
 
-/* fundalul cu poza -> gradient curat, aerisit */
-html body {
-  background: linear-gradient(165deg, #dceefb 0%, #f4f9fd 45%, #eaf3fa 100%) !important;
-}
-
 /* cardul de login/inregistrare/recuperare */
 html .face {
-  background: #ffffff !important;
+  background: var(--apao-surface) !important;
   border-radius: 18px !important;
-  box-shadow: 0 12px 40px rgba(0, 68, 112, 0.14), 0 2px 8px rgba(0, 68, 112, 0.08) !important;
-  border: 1px solid rgba(0, 114, 188, 0.08) !important;
+  box-shadow: var(--apao-shadow) !important;
+  border: 1px solid var(--apao-border) !important;
 }
 
 /* titlurile cardurilor */
 html .face .content h2 {
-  color: #005A96 !important;
+  color: var(--apao-heading) !important;
   font-weight: 700 !important;
   letter-spacing: 0.2px !important;
+  text-align: center !important;
+}
+
+/* textul informativ (fata "Bun venit") — curata culorile inline urate */
+html .face .content p,
+html .face .content span,
+html .face .content div,
+html .face .content font,
+html .face .content b {
+  color: var(--apao-text) !important;
+  background-color: transparent !important;
+}
+html .face .content a,
+html .face .content a font {
+  color: var(--apao-link) !important;
+  background-color: transparent !important;
 }
 
 /* campurile de text */
@@ -39,103 +154,137 @@ html .face .content .field-wrapper input[type="text"],
 html .face .content .field-wrapper input[type="password"],
 html .face .content .field-wrapper input[type="number"],
 html .face .content .field-wrapper textarea {
-  /* longhand-uri explicite: portalul stileaza bordura pe laturi separate
-     (border-style/width/color per latura), iar shorthand-ul singur poate
-     pierde in fata lor la egalitate de importanta */
+  /* longhand-uri explicite: portalul stileaza bordura pe laturi separate */
   border-width: 1.5px !important;
   border-style: solid !important;
-  border-color: #cfe0ee !important;
+  border-color: var(--apao-field-border) !important;
   border-radius: 10px !important;
-  padding: 10px 12px !important;
-  background: #fafcfe !important;
+  padding: 12px 14px !important;
+  min-height: 46px !important;
+  font-size: 16px !important;
+  background: var(--apao-field-bg) !important;
+  color: var(--apao-text) !important;
   transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+html .face .content .field-wrapper input::placeholder,
+html .face .content .field-wrapper textarea::placeholder {
+  color: var(--apao-text-muted) !important;
 }
 
 html .face .content .field-wrapper input[type="text"]:focus,
 html .face .content .field-wrapper input[type="password"]:focus,
 html .face .content .field-wrapper input[type="number"]:focus,
 html .face .content .field-wrapper textarea:focus {
-  border-color: #0072BC !important;
-  box-shadow: 0 0 0 3px rgba(0, 114, 188, 0.15) !important;
+  border-color: var(--apao-primary) !important;
+  box-shadow: 0 0 0 3px var(--apao-focus-ring) !important;
   outline: none !important;
 }
 
-/* butonul principal (Login / trimite) */
+/* iconita "arata parola" */
+html .face .content .div-eye i {
+  color: var(--apao-text-muted) !important;
+}
+
+/* butonul principal (Login / trimite) — tinta de atingere confortabila */
 html .face .content .field-wrapper input[type="submit"] {
-  background: linear-gradient(180deg, #0080d2 0%, #0072BC 60%, #0067aa 100%) !important;
+  background: linear-gradient(180deg, var(--apao-primary) 0%, var(--apao-primary-strong) 100%) !important;
+  color: var(--apao-on-primary) !important;
   border: none !important;
-  border-radius: 10px !important;
+  border-radius: 12px !important;
   font-weight: 700 !important;
   letter-spacing: 0.3px !important;
-  padding: 10px 12px !important;
-  box-shadow: 0 4px 14px rgba(0, 114, 188, 0.35) !important;
+  padding: 13px 14px !important;
+  min-height: 48px !important;
+  box-shadow: 0 4px 14px var(--apao-primary-soft) !important;
   transition: transform 0.1s ease, box-shadow 0.2s ease !important;
 }
 
 html .face .content .field-wrapper input[type="submit"]:active {
   transform: translateY(1px) !important;
-  box-shadow: 0 2px 6px rgba(0, 114, 188, 0.3) !important;
+  box-shadow: 0 2px 6px var(--apao-primary-soft) !important;
 }
 
 /* butoanele secundare: "Ati uitat parola?", "Inregistreaza-te" */
 html .psw, html .signup, html .singin, html .anulareVfCod {
-  color: #0072BC !important;
+  color: var(--apao-link) !important;
   font-weight: 600 !important;
   background: transparent !important;
   border: none !important;
+  min-height: 44px !important;
 }
 
 /* meniul de sus al paginii de login */
 html .topnav {
   border-radius: 12px !important;
   overflow: hidden !important;
+  background: var(--apao-surface-2) !important;
 }
 html .topnav a {
-  color: #33475B !important;
+  color: var(--apao-text) !important;
 }
 html .topnav a.active, html .topnav a:hover {
-  background: #0072BC !important;
-  color: #ffffff !important;
+  background: var(--apao-primary) !important;
+  color: var(--apao-on-primary) !important;
 }
 
 /* etichetele plutitoare peste inputuri */
 html .face .content .field-wrapper label {
-  color: #6b8299 !important;
+  color: var(--apao-text-muted) !important;
 }
 
 /* ============================================================
    2. APLICATIA LOGATA (OpenUI5, /oui/)
    ============================================================ */
 
-/* -- header-ul principal: albastru inchis prafuit -> brand curat -- */
+/* fundalul general al aplicatiei */
+html .sapUiBody,
+html .sapMPage,
+html .sapMPageBgStandard,
+html .sapUiGlobalBackgroundColor {
+  background: var(--apao-bg) !important;
+  background-color: transparent !important;
+}
+html.apao-dark .sapMPage section,
+html.apao-dark .sapMPageEnableScrolling {
+  background: transparent !important;
+  color: var(--apao-text) !important;
+}
+
+/* -- header-ul principal -- */
 html .sapContrast.sapTntToolHeader.sapMTB,
 html .sapContrast .sapTntToolHeader.sapMTB,
 html .sapTntToolHeader.sapMTB {
-  background: linear-gradient(180deg, #0078c6 0%, #0072BC 100%) !important;
+  background: var(--apao-header) !important;
   border-bottom: none !important;
-  box-shadow: 0 2px 10px rgba(0, 68, 112, 0.25) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* zone colorate cu albastrul vechi #346187 -> brand */
 html .backgroundBlue,
 html .fontColor {
-  background: #0072BC !important;
-  color: #ffffff !important;
+  background: var(--apao-primary) !important;
+  color: var(--apao-on-primary) !important;
 }
 
 /* -- meniul lateral -- */
 html .sapContrast.sapTntSideNavigation,
-html .sapContrast .sapTntSideNavigation {
-  background: #f7fafd !important;
+html .sapContrast .sapTntSideNavigation,
+html .sapTntSideNavigation {
+  background: var(--apao-surface) !important;
+  border-right: 1px solid var(--apao-divider) !important;
+}
+html .sapTntNavLI .sapTntNavLIGroup,
+html .sapTntNavLIText {
+  color: var(--apao-text) !important;
 }
 html .sapTntNavLIItemSelected {
-  background: rgba(0, 114, 188, 0.14) !important;
-  border-left: 3px solid #0072BC !important;
+  background: var(--apao-primary-soft) !important;
+  border-left: 3px solid var(--apao-primary) !important;
 }
 html .sapContrast.sapTntNavLIItemSelected .sapTntNavLIGroup,
 html .sapContrast .sapTntNavLIItemSelected .sapTntNavLIGroup {
-  background: rgba(0, 114, 188, 0.14) !important;
-  color: #005A96 !important;
+  background: var(--apao-primary-soft) !important;
+  color: var(--apao-heading) !important;
 }
 
 /* -- butoane -- */
@@ -143,14 +292,28 @@ html .sapMBtnInner {
   border-radius: 9px !important;
   transition: filter 0.15s ease !important;
 }
+html.apao-dark .sapMBtnInner.sapMBtnDefault,
+html.apao-dark .sapMBtnInner.sapMBtnTransparent {
+  background: var(--apao-surface-2) !important;
+  border-color: var(--apao-border) !important;
+  color: var(--apao-text) !important;
+}
+html.apao-dark .sapMBtnInner .sapMBtnIcon,
+html.apao-dark .sapMBtnInner.sapMBtnTransparent .sapMBtnContent {
+  color: var(--apao-text) !important;
+}
 html .sapMBtnInner.sapMBtnEmphasized,
 html .sapContrast span.sapMBtnInner.sapMBtnEmphasized {
-  background: #0072BC !important;
-  border-color: #0072BC !important;
+  background: var(--apao-primary) !important;
+  border-color: var(--apao-primary) !important;
+  color: var(--apao-on-primary) !important;
   text-shadow: none !important;
 }
+html .sapMBtnInner.sapMBtnEmphasized .sapMBtnContent {
+  color: var(--apao-on-primary) !important;
+}
 html .sapMBtnInner.sapMBtnEmphasized:active {
-  background: #005A96 !important;
+  background: var(--apao-primary-strong) !important;
 }
 
 /* butoane de succes / critice: pastreaza semantica, doar le rotunjim */
@@ -162,26 +325,33 @@ html .sapMBtnSuccess .sapMBtnInner, html .sapMBtnCritical .sapMBtnInner {
 html .utiStyle .sapMPanel,
 html .sapMPanel {
   border-radius: 14px !important;
-  box-shadow: 0 3px 14px rgba(0, 68, 112, 0.09) !important;
+  box-shadow: var(--apao-shadow-soft) !important;
   overflow: hidden !important;
-  border: 1px solid rgba(0, 114, 188, 0.07) !important;
+  border: 1px solid var(--apao-border) !important;
+  background: var(--apao-surface) !important;
+}
+html .sapMPanelContent {
+  background: var(--apao-surface) !important;
+  color: var(--apao-text) !important;
 }
 html .utiStyle .sapMPanel > .sapMPanelHdr,
 html .utiStyle .sapMPanelWrappingDiv,
-html .sapMPanelWrappingDivTb {
-  background: #f0f6fb !important;
-  border-bottom: 1px solid rgba(0, 114, 188, 0.1) !important;
+html .sapMPanelWrappingDivTb,
+html .sapMPanelHdr {
+  background: var(--apao-surface-2) !important;
+  color: var(--apao-heading) !important;
+  border-bottom: 1px solid var(--apao-divider) !important;
 }
 
 /* -- sectiunile colorate de pe home (Sold, Transmitere index etc.) -- */
 html .backgroundSectionLight {
-  background-color: #f2f7fc !important;
+  background-color: var(--apao-surface-2) !important;
 }
 html .backgroundSectionDark {
-  background-color: #ddeaf6 !important;
+  background-color: var(--apao-surface-3) !important;
 }
 html .backgroundSold {
-  background-color: #e4eefa !important;
+  background-color: var(--apao-surface-3) !important;
   border-radius: 12px !important;
 }
 html .backgroundTransmitere,
@@ -192,48 +362,134 @@ html .backgroundTrimitiveMessage,
 html .backgroundInformatiiContract {
   border-radius: 12px !important;
 }
+html.apao-dark .backgroundTransmitere,
+html.apao-dark .backgroundActivareFactura,
+html.apao-dark .backgroundActivareAlerte,
+html.apao-dark .backgroundActualizareDate,
+html.apao-dark .backgroundTrimitiveMessage,
+html.apao-dark .backgroundInformatiiContract {
+  background-color: var(--apao-surface-2) !important;
+  color: var(--apao-text) !important;
+}
+
+/* -- texte generice SAP -- */
+html .sapMText,
+html .sapMLabel,
+html .sapMTitle,
+html .sapMObjectNumberText,
+html .sapMSLITitle,
+html .sapMSLIDescription,
+html .sapMLIBContent {
+  color: var(--apao-text) !important;
+}
+html .sapMLabel.sapMLabelRequired,
+html .sapMLabelColonAndRequired {
+  color: var(--apao-text-muted) !important;
+}
 
 /* -- linkuri si accente -- */
 html .sapMLnk, html .lightBlueColor {
-  color: #0072BC !important;
+  color: var(--apao-link) !important;
 }
 html .blueColor {
-  color: #005A96 !important;
+  color: var(--apao-heading) !important;
 }
 
 /* -- liste / tabele (facturi) -- */
+html .sapMList,
+html .sapMListUl {
+  background: transparent !important;
+}
 html .sapMLIB {
+  background: var(--apao-surface) !important;
   transition: background-color 0.15s ease !important;
 }
 html .sapMListUl > .sapMLIB.sapMGHLI {
-  background: #e9f2fa !important;
-  color: #005A96 !important;
+  background: var(--apao-surface-3) !important;
+  color: var(--apao-heading) !important;
   font-weight: 700 !important;
 }
 html .sapMLIB.sapMLIBSelected {
-  background: rgba(0, 114, 188, 0.10) !important;
+  background: var(--apao-primary-soft) !important;
 }
 
 /* -- inputuri SAP -- */
 html .sapMInputBaseContentWrapper {
   border-radius: 9px !important;
+  background: var(--apao-field-bg) !important;
+  border-color: var(--apao-field-border) !important;
+}
+html .sapMInputBaseInner {
+  color: var(--apao-text) !important;
+  background: transparent !important;
 }
 html .sapMInputBaseContentWrapperState.sapMInputBaseContentWrapperFocus,
 html .sapMInputBaseContentWrapper.sapMInputBaseContentWrapperFocus {
-  border-color: #0072BC !important;
+  border-color: var(--apao-primary) !important;
+}
+
+/* -- select-uri si combobox-uri -- */
+html .sapMSlt {
+  border-radius: 9px !important;
+  background: var(--apao-field-bg) !important;
+  border-color: var(--apao-field-border) !important;
+}
+html .sapMSltLabel,
+html .sapMSltArrow,
+html .sapMComboBoxInner {
+  color: var(--apao-text) !important;
+}
+html .sapMComboBox .sapMInputBaseContentWrapper {
+  background: var(--apao-field-bg) !important;
+}
+html .sapMSelectList {
+  background: var(--apao-surface) !important;
+}
+html .sapMSelectListItemText {
+  color: var(--apao-text) !important;
+}
+html .sapMSelectListItemBaseSelected {
+  background: var(--apao-primary-soft) !important;
+}
+
+/* -- tab bar (Configurari) -- */
+html .sapMITBHead,
+html .sapMITB.sapMITBBackgroundDesignSolid {
+  background: var(--apao-surface) !important;
+}
+html .sapMITBText {
+  color: var(--apao-text) !important;
+}
+html .sapMITBSelected .sapMITBText {
+  color: var(--apao-primary) !important;
+}
+html .sapMITBContent {
+  background: transparent !important;
+}
+
+/* culori semantice de stare, lizibile pe tema intunecata */
+html.apao-dark .greenColor {
+  color: #7fd89a !important;
+}
+html.apao-dark .redColor {
+  color: #ff9a8f !important;
 }
 
 /* -- checkbox-uri -- */
 html .sapMCbMarkChecked {
-  color: #0072BC !important;
+  color: var(--apao-primary) !important;
+}
+html.apao-dark .sapMCbMark {
+  background: var(--apao-field-bg) !important;
+  border-color: var(--apao-field-border) !important;
 }
 
 /* -- bara de jos (footer) -- */
 html.sap-desktop .sapContrast .sapMIBar.sapMFooter-CTX,
 html.sap-desktop .sapContrast.sapMIBar.sapMFooter-CTX,
 html .sapMIBar.sapMFooter-CTX {
-  background: #f7fafd !important;
-  border-top: 1px solid rgba(0, 114, 188, 0.12) !important;
+  background: var(--apao-surface) !important;
+  border-top: 1px solid var(--apao-divider) !important;
 }
 
 /* -- popover-uri si dialoguri -- */
@@ -241,14 +497,132 @@ html .sapMPopover, html .sapMDialog {
   border-radius: 14px !important;
   overflow: hidden !important;
 }
+html .sapMPopoverCont, html .sapMDialogSection, html .sapMDialogScrollCont {
+  background: var(--apao-surface) !important;
+  color: var(--apao-text) !important;
+}
+html .sapMIBar.sapMHeader-CTX, html .sapMDialogTitle {
+  background: var(--apao-surface-2) !important;
+  color: var(--apao-heading) !important;
+}
 
-/* -- micsoram zgomotul vizual: separatoare mai discrete -- */
+/* -- separatoare discrete -- */
 html .sapMLIBShowSeparator {
-  border-bottom-color: rgba(0, 90, 150, 0.10) !important;
+  border-bottom-color: var(--apao-divider) !important;
 }
 
 /* titluri de sectiune */
 html .fontH2 {
-  color: #005A96 !important;
+  color: var(--apao-heading) !important;
   font-weight: 700 !important;
+}
+
+/* -- toolbar-uri generice -- */
+html.apao-dark .sapMTB:not(.sapTntToolHeader) {
+  background: var(--apao-surface) !important;
+  color: var(--apao-text) !important;
+}
+
+/* ============================================================
+   3. ACOPERIRE COMPLETA — pagini OpenUI5 (DynamicPage, taburi,
+      grile de formular, bare de pagina). Necesare mai ales in
+      tema intunecata, unde fundalurile albe implicite ies in
+      evidenta. Titlul/antetul devin suprafata, continutul devine
+      transparent (lasa gradientul temei sa se vada).
+   ============================================================ */
+
+/* fundalul radacina al aplicatiei (ToolPage) — gradientul temei.
+   Este containerul care acopera tot ecranul; fara aceasta regula, gri-ul
+   implicit (#f0f0f0) razbate prin toate zonele transparente in tema dark. */
+html .sapTntToolPage,
+html .sapTntToolPageMain {
+  background: var(--apao-bg) !important;
+}
+html .sapTntToolPageMainContent,
+html .sapTntToolPageMainContentWrapper {
+  background: transparent !important;
+}
+
+/* grile de formular / layout — transparente */
+html .sapUiRespGrid,
+html .sapUiFormResGridCont,
+html .sapUiFormResGridMain,
+html .sapUiForm {
+  background: transparent !important;
+}
+
+/* DynamicPage: titlu + antet = banda de suprafata */
+html .sapFDynamicPageTitle,
+html .sapFDynamicPageHeader,
+html .sapFDynamicPageHeaderWrapper,
+html .sapFDynamicPageHeaderSolid {
+  background: var(--apao-surface) !important;
+  color: var(--apao-text) !important;
+}
+html.apao-dark .sapFDynamicPageTitle,
+html.apao-dark .sapFDynamicPageHeader,
+html.apao-dark .sapFDynamicPageHeaderWrapper {
+  border-bottom: 1px solid var(--apao-divider) !important;
+}
+/* DynamicPage: continutul derulabil — transparent peste gradient */
+html .sapFDynamicPage,
+html .sapFDynamicPageContent,
+html .sapFDynamicPageContentWrapper {
+  background: transparent !important;
+}
+
+/* IconTabHeader (bara de taburi, ex. Configurari) */
+html .sapMITH,
+html .sapMITHBackgroundDesignSolid,
+html .sapMITHEndOverflowList {
+  background: var(--apao-surface) !important;
+}
+html .sapMITBFilter,
+html .sapMITBItem,
+html .sapMITBTextOnly {
+  background: transparent !important;
+}
+
+/* iconita din campurile de input (calendar / value help) */
+html .sapMInputBaseIcon {
+  background: transparent !important;
+  color: var(--apao-text-muted) !important;
+}
+
+/* text "fara date" din liste */
+html .sapMListNoDataText,
+html .sapMListNoData {
+  color: var(--apao-text-muted) !important;
+  background: transparent !important;
+}
+
+/* butoane semantice Accept / Reject in tema intunecata (aspect tonal) */
+html.apao-dark .sapMBtnInner.sapMBtnAccept {
+  background: rgba(127, 216, 154, 0.16) !important;
+  border-color: rgba(127, 216, 154, 0.40) !important;
+}
+html.apao-dark .sapMBtnAccept .sapMBtnContent,
+html.apao-dark .sapMBtnInner.sapMBtnAccept .sapMBtnIcon {
+  color: #7fd89a !important;
+}
+html.apao-dark .sapMBtnInner.sapMBtnReject {
+  background: rgba(255, 154, 143, 0.16) !important;
+  border-color: rgba(255, 154, 143, 0.40) !important;
+}
+html.apao-dark .sapMBtnReject .sapMBtnContent,
+html.apao-dark .sapMBtnInner.sapMBtnReject .sapMBtnIcon {
+  color: #ff9a8f !important;
+}
+
+/* -- scrollbar discret pe tema intunecata -- */
+html.apao-dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+html.apao-dark ::-webkit-scrollbar-thumb {
+  background: var(--apao-surface-3);
+  border-radius: 8px;
+}
+html.apao-dark ::-webkit-scrollbar-track {
+  background: transparent;
 }
