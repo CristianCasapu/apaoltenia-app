@@ -25,6 +25,9 @@
 
     <!-- Setari -->
     <string name="settings_title">Setari</string>
+    <string name="settings_login">Autentificare</string>
+    <string name="settings_auto_login">Autentificare automata</string>
+    <string name="settings_auto_login_hint">Dupa deblocare, trimite automat formularul de login imediat ce verificarea de securitate este trecuta. Nu ocoleste verificarea anti-bot — doar te scuteste de ultima apasare.</string>
     <string name="settings_theme">Tema</string>
     <string name="settings_theme_system">Ca sistemul</string>
     <string name="settings_theme_light">Luminos</string>

@@ -38,10 +38,19 @@ class SettingsActivity : AppCompatActivity() {
 
         prefs = AppPreferences(this)
 
+        setupAutoLogin()
         setupTheme()
         setupNotifications()
         setupUpdates()
         setupData()
+    }
+
+    // ── Autentificare automata ───────────────────────────────────────────────
+    private fun setupAutoLogin() {
+        binding.autoLoginSwitch.isChecked = prefs.autoLoginEnabled
+        binding.autoLoginSwitch.setOnCheckedChangeListener { _, checked ->
+            prefs.autoLoginEnabled = checked
+        }
     }
 
     // ── Tema ──────────────────────────────────────────────────────────────

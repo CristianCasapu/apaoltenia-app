@@ -23,6 +23,16 @@ class AppPreferences(context: Context) {
         set(value) = prefs.edit().putBoolean(KEY_NOTIFY, value).apply()
 
     /**
+     * Trimite automat formularul de login dupa deblocarea biometrica, imediat
+     * ce verificarea Cloudflare Turnstile este satisfacuta. Nu ocoleste
+     * verificarea anti-bot — asteapta ca aceasta sa fie trecuta (adesea automat
+     * pentru utilizatori de incredere) si doar apoi apasa Login in locul tau.
+     */
+    var autoLoginEnabled: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_LOGIN, true)
+        set(value) = prefs.edit().putBoolean(KEY_AUTO_LOGIN, value).apply()
+
+    /**
      * Ultima "amprenta" a facturilor observata in portal (hash), folosita ca
      * sa detectam schimbari fara a stoca continut sensibil. Doar un hash.
      */
@@ -34,6 +44,7 @@ class AppPreferences(context: Context) {
         private const val PREF_FILE = "apaoltenia_settings"
         private const val KEY_THEME = "theme_mode"
         private const val KEY_NOTIFY = "invoice_notifications"
+        private const val KEY_AUTO_LOGIN = "auto_login"
         private const val KEY_INVOICE_SIG = "invoice_signature"
 
         /** Aplica modul de tema salvat pe intreaga aplicatie. */

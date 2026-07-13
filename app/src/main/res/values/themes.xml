@@ -7,5 +7,8 @@
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/brand_primary</item>
         <item name="colorOnSecondary">@color/white</item>
+        <!-- Bara de sus brandata, coerenta cu antetul paginii web. -->
+        <item name="toolbarStyle">@style/Widget.ApaOltenia.Toolbar</item>
+        <item name="android:statusBarColor">@color/toolbar_bg</item>
     </style>
 </resources>

@@ -23,6 +23,28 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <!-- AUTENTIFICARE -->
+        <TextView
+            style="@style/SettingsSectionHeader"
+            android:text="@string/settings_login" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/autoLoginSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/settings_auto_login" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/settings_auto_login_hint"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <View style="@style/SettingsDivider" />
+
         <!-- TEMA -->
         <TextView
             style="@style/SettingsSectionHeader"

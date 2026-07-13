@@ -257,6 +257,9 @@ class MainActivity : AppCompatActivity() {
                     val password = store.password
                     if (email != null && password != null) {
                         injectAutoFill(email, password)
+                        if (AppPreferences(this@MainActivity).autoLoginEnabled) {
+                            injectAutoSubmit()
+                        }
                     }
                     autoLoginArmed = false
                 }
@@ -455,10 +458,55 @@ class MainActivity : AppCompatActivity() {
                           pwd.dispatchEvent(new Event('input',{bubbles:true})); }
             })();
         """.trimIndent()
-        // NOTA: nu apasam automat "Login". Portalul cere completarea unui
-        // Cloudflare Turnstile (anti-bot) inainte de trimitere, asa ca lasam
-        // utilizatorul sa bifeze verificarea si sa apese Login. Campurile sunt
-        // deja completate, deci ramane un singur gest.
+        // Doar completam campurile. Trimiterea (si asteptarea verificarii
+        // Cloudflare Turnstile) e tratata separat de injectAutoSubmit, activata
+        // optional din Setari.
+        binding.webView.evaluateJavascript(js, null)
+    }
+
+    /**
+     * Dupa completarea automata, urmareste verificarea Cloudflare Turnstile si
+     * apasa "Login" imediat ce aceasta este satisfacuta. NU ocoleste anti-bot-ul:
+     * asteapta tokenul emis de Cloudflare (adesea automat, prin managed challenge,
+     * pentru clienti de incredere) si doar apoi trimite formularul — economisind
+     * un gest. Daca verificarea cere interactiune, utilizatorul o rezolva si
+     * trimiterea are loc imediat dupa. Se opreste dupa un timp rezonabil.
+     */
+    private fun injectAutoSubmit() {
+        val js = """
+            (function() {
+              if (window.__apaoAutoSubmit) return;
+              window.__apaoAutoSubmit = true;
+              function loginForm() {
+                var pwds = Array.prototype.slice.call(
+                    document.querySelectorAll('input[type=password]'));
+                for (var i = 0; i < pwds.length; i++) {
+                  var f = pwds[i].form;
+                  if (f && f.querySelectorAll('input[type=password]').length === 1) return f;
+                }
+                return null;
+              }
+              var tries = 0;
+              var timer = setInterval(function() {
+                if (++tries > 150) { clearInterval(timer); return; }
+                var form = loginForm();
+                if (!form) return;
+                var token = form.querySelector('input[name="cf-turnstile-response"]') ||
+                            document.querySelector('input[name="cf-turnstile-response"]');
+                var pwd = form.querySelector('input[type=password]');
+                var user = form.querySelector('input[type=email]') ||
+                           form.querySelector('input[type=text]');
+                var ready = token && token.value && token.value.length > 20 &&
+                            user && user.value && pwd && pwd.value;
+                if (!ready) return;
+                var btn = form.querySelector('input[type=submit], button[type=submit]');
+                if (btn && !btn.disabled) {
+                  clearInterval(timer);
+                  btn.click();
+                }
+              }, 800);
+            })();
+        """.trimIndent()
         binding.webView.evaluateJavascript(js, null)
     }
 

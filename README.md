@@ -19,13 +19,21 @@ pe dispozitivul tau.
    poate fi extrasa din telefon).
 3. **La urmatoarele deschideri** – aplicatia cere deblocarea prin
    amprenta / fata / model / PIN. Dupa deblocare, **completeaza automat**
-   emailul si parola; tu doar bifezi verificarea Turnstile si apesi Login.
+   emailul si parola. Cu **Autentificare automata** activa (implicit), trimite
+   si formularul imediat ce verificarea Cloudflare e trecuta — adesea complet
+   automat. Daca preferi sa apesi tu Login, dezactiveaza optiunea din **Setari**.
 4. **Daca iti schimbi parola in portal** – la urmatoarea logare manuala
    aplicatia detecteaza ca datele difera si iti propune sa le actualizeze.
 
 ## Functii
 
 - 🔒 **Deblocare biometrica** inainte de auto-login.
+- ⚡ **Autentificare automata** (optionala, din Setari): dupa deblocare, aplicatia
+  completeaza datele si trimite formularul imediat ce verificarea Cloudflare este
+  trecuta — adesea complet automat, cu o singura atingere biometrica. Nu ocoleste
+  verificarea anti-bot.
+- 🎨 **Bara de sus brandata**, coerenta cu antetul portalului, in tema clara si
+  intunecata.
 - 🌗 **Temă luminoasă / întunecată / ca sistemul**, comutabila din **Setari**.
   Tema intunecata este **desenata manual** printr-o foaie de stil proprie
   (nu algorithmic darkening), cu culori de brand pe toate ecranele portalului.

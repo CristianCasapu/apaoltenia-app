@@ -79,6 +79,16 @@ html body {
   color: var(--apao-text) !important;
 }
 
+/* ---------- confort tactil pe mobil ---------- */
+html {
+  /* fara redimensionare automata a textului la rotire; evidentiere brand la atingere */
+  -webkit-text-size-adjust: 100% !important;
+  -webkit-tap-highlight-color: rgba(0, 114, 188, 0.15) !important;
+}
+html body {
+  -webkit-overflow-scrolling: touch !important;
+}
+
 /* ============================================================
    0. BRANDING PROPRIU — fara logo si fara poza de fundal
    ============================================================ */

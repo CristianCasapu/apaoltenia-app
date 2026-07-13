@@ -6,4 +6,7 @@
     <color name="brand_primary_light">#4FA3D8</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+
+    <!-- Bara de sus (toolbar + status bar). Varianta night in values-night. -->
+    <color name="toolbar_bg">#0072BC</color>
 </resources>

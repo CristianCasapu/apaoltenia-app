@@ -9,6 +9,14 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+    <!-- Toolbar brandat: fundal albastru (dark in night), continut alb. -->
+    <style name="Widget.ApaOltenia.Toolbar" parent="Widget.Material3.Toolbar.OnSurface">
+        <item name="android:background">@color/toolbar_bg</item>
+        <item name="titleTextColor">@color/white</item>
+        <item name="android:theme">@style/ThemeOverlay.Material3.Dark</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.Dark</item>
+    </style>
+
     <style name="SettingsDivider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>

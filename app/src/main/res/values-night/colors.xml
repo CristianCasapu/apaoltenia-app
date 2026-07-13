@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bara de sus in tema intunecata — se potriveste cu antetul paginii web
+         (capatul inchis al gradientului brand). -->
+    <color name="toolbar_bg">#0F2A3D</color>
+</resources>
