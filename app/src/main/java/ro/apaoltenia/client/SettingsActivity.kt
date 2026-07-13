@@ -1,6 +1,7 @@
 package ro.apaoltenia.client
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -105,6 +106,9 @@ class SettingsActivity : AppCompatActivity() {
     // ── Actualizari ──────────────────────────────────────────────────────────
     private fun setupUpdates() {
         binding.versionLabel.text = getString(R.string.version_label, BuildConfig.VERSION_NAME)
+        binding.changelogButton.setOnClickListener {
+            startActivity(Intent(this, ChangelogActivity::class.java))
+        }
         binding.checkUpdatesButton.setOnClickListener {
             binding.checkUpdatesButton.isEnabled = false
             toast(getString(R.string.update_checking))

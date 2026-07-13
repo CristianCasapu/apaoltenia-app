@@ -46,6 +46,9 @@
     <string name="settings_notify_needs_login">Salveaza intai datele de conectare (autentifica-te o data in aplicatie) ca sa poata functiona verificarea in fundal.</string>
     <string name="settings_updates">Actualizari</string>
     <string name="settings_check_updates">Verifica actualizari</string>
+    <string name="settings_changelog">Istoric versiuni</string>
+    <string name="settings_changelog_button">Vezi noutatile si istoricul</string>
+    <string name="changelog_version_header">Versiunea %1$s · %2$s</string>
     <string name="settings_data">Date salvate</string>
     <string name="settings_about">Despre</string>
     <string name="version_label">Versiune %1$s</string>

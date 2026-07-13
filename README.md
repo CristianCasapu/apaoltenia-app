@@ -57,6 +57,8 @@ pe dispozitivul tau.
 - ⬆️ **Actualizare complet in aplicatie**: verificare automata la pornire si din
   **Setari → Verifica actualizari**; APK-ul se **descarca si se instaleaza direct
   din aplicatie**, fara redirectionare catre GitHub.
+- 🕑 **Istoric versiuni in aplicatie**: **Setari → Istoric versiuni** arata pe
+  scurt evolutia aplicatiei sub forma de linie a timpului.
 
 ## Notificari pentru facturi noi — cum si limitele
 

@@ -292,14 +292,35 @@ html .sapTntNLIFirstLevel,
 html .sapTntNLIGroup {
   background: transparent !important;
 }
-/* casuta fiecarui item: rotunjita, cu spatiere si tinta de atingere confortabila */
+/* Fiecare item: colturi rotunjite, spatiere aerisita, FARA borduri/umbre.
+   Skin-ul sapContrast al portalului deseneaza borduri groase pe item-uri —
+   le anulam explicit pentru un aspect curat, tip lista simpla. */
+html .sapTntNLI,
+html .sapTntNLI > a,
+html .sapTntNLIFirstLevel {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+/* portalul deseneaza o bordura groasa (3px) prin pseudo-elementul ::before pe
+   fiecare item — sursa "bordurilor prea groase". O eliminam si pastram doar un
+   inel de focus subtire, brand, pentru navigarea cu tastatura. */
+html .sapTntNLI::before,
+html .sapTntNLI::after {
+  border: none !important;
+  box-shadow: none !important;
+}
+html .sapTntNLI:focus-within::before {
+  border: 2px solid var(--apao-primary) !important;
+  border-radius: 10px !important;
+}
 html .sapTntNLI {
   border-radius: 10px !important;
-  margin: 2px 8px !important;
+  margin: 1px 8px !important;
   transition: background-color 0.15s ease !important;
 }
 html .sapTntNLI > a {
-  min-height: 44px !important;
+  min-height: 42px !important;
   border-radius: 10px !important;
 }
 html .sapTntNLIText,
@@ -310,17 +331,18 @@ html .sapTntNavLIText {
 html .sapTntNLIIcon {
   color: var(--apao-text-muted) !important;
 }
-/* hover */
+/* hover discret */
 html .sapTntNLI:hover,
 html .sapTntNLI > a:hover {
   background: var(--apao-primary-soft) !important;
 }
-/* item selectat: fundal brand-soft, text + iconita brand */
+/* item selectat: doar o pastila brand-soft + text/iconita brand (fara linie
+   laterala groasa) — un accent mai rafinat decat bordura de 3px. */
 html .sapTntNLISelected,
 html .sapTntNLISelected > a,
 html .sapTntNavLIItemSelected {
   background: var(--apao-primary-soft) !important;
-  border-left: 3px solid var(--apao-primary) !important;
+  border: none !important;
 }
 html .sapTntNLISelected .sapTntNLIText,
 html .sapTntNLISelected .sapTntNLIIcon,
@@ -331,6 +353,13 @@ html .sapContrast .sapTntNavLIItemSelected .sapTntNavLIGroup {
 }
 html .sapTntNLISelected .sapTntNLIText {
   font-weight: 600 !important;
+}
+/* Marginea dreapta a panoului — subtire si discreta. */
+html .sapTntSideNavigation,
+html .sapTntSideNavigationFixed,
+html .sapTntSideNavigationFlexible,
+html .sapTntSideNavigationFlexibleContent {
+  border-right-width: 1px !important;
 }
 /* separator + zona fixa de jos (email/logout) */
 html .sapTntSideNavigationSeparator {
