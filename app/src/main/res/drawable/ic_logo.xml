@@ -1,8 +1,8 @@
 <!--
-  Marca "Picatura Oltenia" pentru interfata aplicatiei (ecranul de
-  deblocare): aceeasi picatura cu gradient si val ca iconita launcher-ului,
-  dar pe viewport strans (fara marginea iconitei adaptive), ca sa se vada
-  mare si clar. Nu aplica tint peste ea — ar aplatiza gradientul.
+  Marca aplicatiei pentru interfata (ecranul de deblocare): discul cu
+  gradient si picatura in spatiu negativ, pe viewport strans (fara marginea
+  iconitei adaptive), ca sa se vada mare si clar. Nu aplica tint peste ea —
+  ar aplatiza gradientul.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
@@ -10,25 +10,20 @@
     android:height="64dp"
     android:viewportWidth="64"
     android:viewportHeight="64">
-    <path android:pathData="M32,3 C28.7,7.3 12,28 12,41 C12,52 21,61 32,61 C43,61 52,52 52,41 C52,28 35.3,7.3 32,3 Z">
+    <path
+        android:fillType="evenOdd"
+        android:pathData="M32,2 A30,30 0 1 0 32,62 A30,30 0 1 0 32,2 Z M32,14.7 C29.9,17.5 19.9,29.1 19.9,36.6 C19.9,43.4 25.3,48.7 32,48.7 C38.7,48.7 44.1,43.4 44.1,36.6 C44.1,29.1 34.1,17.5 32,14.7 Z">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="linear"
-                android:startX="16"
-                android:startY="10"
-                android:endX="50"
-                android:endY="60">
-                <item android:offset="0.0" android:color="#FF4FA3D8" />
-                <item android:offset="0.5" android:color="#FF0072BC" />
-                <item android:offset="1.0" android:color="#FF005A96" />
+                android:startX="6"
+                android:startY="6"
+                android:endX="58"
+                android:endY="58">
+                <item android:offset="0.0" android:color="#FF2E8FD0" />
+                <item android:offset="0.55" android:color="#FF0072BC" />
+                <item android:offset="1.0" android:color="#FF00436F" />
             </gradient>
         </aapt:attr>
     </path>
-    <group>
-        <clip-path android:pathData="M32,3 C28.7,7.3 12,28 12,41 C12,52 21,61 32,61 C43,61 52,52 52,41 C52,28 35.3,7.3 32,3 Z" />
-        <path
-            android:pathData="M8,42 C17,36 26,47 35,42 C43,37.5 49,44 56,40 L56,64 L8,64 Z"
-            android:fillColor="#FFFFFF"
-            android:fillAlpha="0.2" />
-    </group>
 </vector>

@@ -108,20 +108,19 @@ html img[src*="BANNER_FIRMA"] {
   display: none !important;
 }
 
-/* in locul logo-ului: o "picatura" desenata din CSS, sub titlul cardului */
+/* in locul logo-ului: marca aplicatiei (picatura in spatiu negativ dintr-un
+   disc cu gradient), acelasi desen ca iconita si ecranul de deblocare */
 html .face .titluLogin {
   margin-bottom: 1.25rem !important;
 }
 html .face .titluLogin h2::after {
   content: "";
   display: block;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   margin: 14px auto 0;
-  /* acelasi gradient diagonal ca marca aplicatiei (Picatura Oltenia) */
-  background: linear-gradient(135deg, #4FA3D8 0%, var(--apao-primary) 50%, var(--apao-primary-strong) 100%);
-  border-radius: 0 50% 50% 50%;
-  transform: rotate(45deg);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='6' y1='6' x2='58' y2='58' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%232E8FD0'/%3E%3Cstop offset='.55' stop-color='%230072BC'/%3E%3Cstop offset='1' stop-color='%2300436F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' fill-rule='evenodd' d='M32,2 A30,30 0 1 0 32,62 A30,30 0 1 0 32,2 Z M32,14.7 C29.9,17.5 19.9,29.1 19.9,36.6 C19.9,43.4 25.3,48.7 32,48.7 C38.7,48.7 44.1,43.4 44.1,36.6 C44.1,29.1 34.1,17.5 32,14.7 Z'/%3E%3C/svg%3E") no-repeat center / contain;
+  border-radius: 50%;
   box-shadow: 0 6px 18px var(--apao-primary-soft);
 }
 

@@ -11,7 +11,7 @@ object Changelog {
     val entries: List<Entry> = listOf(
         Entry(
             "1.6.0", "10.08.2026", listOf(
-                "Logo nou: picatura moderna cu gradient, pe iconita, notificari si ecranul de deblocare",
+                "Logo nou: picatura in spatiu negativ pe disc cu gradient — pe iconita, notificari si ecranul de deblocare",
                 "Iconita tematica pentru Android 13+ (Material You)",
                 "Notificarile de facturi noi functioneaza corect (verificarea din fundal reparata)",
                 "Autentificarea automata se opreste singura dupa cateva incercari esuate",

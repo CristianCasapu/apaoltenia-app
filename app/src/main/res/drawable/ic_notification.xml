@@ -1,7 +1,7 @@
 <!--
-  Iconita din bara de status: aceeasi silueta "Picatura Oltenia" (picatura
-  cu valul ca spatiu negativ), redusa la 24dp. Ramane alb plat obligatoriu —
-  sistemul o coloreaza singur in bara de status.
+  Iconita din bara de status: aceeasi silueta ca marca aplicatiei (discul
+  cu picatura in spatiu negativ), redusa la 24dp. Ramane alb plat
+  obligatoriu — sistemul o coloreaza singur in bara de status.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
@@ -11,5 +11,5 @@
     <path
         android:fillColor="#FFFFFF"
         android:fillType="evenOdd"
-        android:pathData="M12,3.6 C11,4.9 5.7,11 5.7,14.1 C5.7,17.6 8.5,20.4 12,20.4 C15.5,20.4 18.3,17.6 18.3,14.1 C18.3,11 13,4.9 12,3.6 Z M7.8,14.6 C9.5,13.6 11.2,15.4 13,14.5 C14.5,13.8 15.8,14.3 16.4,14.1 L16.4,15.6 C15.8,15.8 14.5,15.3 13,16 C11.2,16.9 9.5,15.1 7.8,16.1 Z" />
+        android:pathData="M12,2.6 A9.4,9.4 0 1 0 12,21.4 A9.4,9.4 0 1 0 12,2.6 Z M12,6.6 C11.3,7.5 8.2,11.2 8.2,13.6 C8.2,15.75 9.9,17.4 12,17.4 C14.1,17.4 15.8,15.75 15.8,13.6 C15.8,11.2 12.7,7.5 12,6.6 Z" />
 </vector>
