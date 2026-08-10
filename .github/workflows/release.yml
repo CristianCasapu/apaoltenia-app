@@ -45,6 +45,18 @@ jobs:
           echo "TAG=$TAG"     >> $GITHUB_OUTPUT
           echo "VERSION=$VER" >> $GITHUB_OUTPUT
 
+      # ── 5b. Tag-ul trebuie sa coincida cu versionName din Gradle ───
+      # Altfel s-ar publica un APK care se raporteaza pe sine cu alta
+      # versiune decat release-ul: verificarea din aplicatie ar propune
+      # actualizarea la nesfarsit (sau n-ar vedea-o deloc).
+      - name: Verify tag matches versionName
+        run: |
+          GRADLE_VER=$(grep -oP 'versionName = "\K[0-9.]+' app/build.gradle.kts)
+          if [ "$GRADLE_VER" != "${{ steps.version.outputs.VERSION }}" ]; then
+            echo "::error::Tag ${{ steps.version.outputs.VERSION }} != versionName $GRADLE_VER din app/build.gradle.kts"
+            exit 1
+          fi
+
       # ── 6. Build APK release semnat ────────────────────────────────
       # Cheia si parolele vin din secrets, prin variabile de mediu citite
       # in app/build.gradle.kts (KEYSTORE_FILE / KEYSTORE_PASSWORD / ...).
