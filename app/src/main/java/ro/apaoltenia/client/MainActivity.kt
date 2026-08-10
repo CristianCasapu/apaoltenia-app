@@ -804,7 +804,9 @@ class MainActivity : AppCompatActivity() {
         // Punctul de intrare in aplicatia portalului. Deschis direct la
         // pornire: daca sesiunea e valida se incarca pe loc, altfel portalul
         // redirectioneaza singur la pagina de login (login.jsp).
-        private const val APP_URL =
+        // Ne-privat: InvoiceCheckWorker trebuie sa incarce exact aceeasi
+        // pagina, ca amprenta facturilor sa fie calculata pe aplicatia reala.
+        const val APP_URL =
             "https://clienti.apaoltenia.ro/self_utilities//oui/cl/index.html"
     }
 }
