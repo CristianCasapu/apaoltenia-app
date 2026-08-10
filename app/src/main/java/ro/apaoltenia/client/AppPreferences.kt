@@ -40,12 +40,33 @@ class AppPreferences(context: Context) {
         get() = prefs.getString(KEY_INVOICE_SIG, null)
         set(value) = prefs.edit().putString(KEY_INVOICE_SIG, value).apply()
 
+    /**
+     * Cate trimiteri automate de login au esuat la rand (am revenit pe
+     * login.jsp dupa un auto-submit). Peste un prag, oprim auto-submit-ul ca
+     * sa nu buclam cu o parola gresita si sa riscam blocarea contului;
+     * completarea automata ramane, doar butonul Login trebuie apasat manual.
+     */
+    var autoLoginFailures: Int
+        get() = prefs.getInt(KEY_AUTO_LOGIN_FAILURES, 0)
+        set(value) = prefs.edit().putInt(KEY_AUTO_LOGIN_FAILURES, value).apply()
+
+    /**
+     * Versiunea pentru care utilizatorul a ales "Mai tarziu" la dialogul de
+     * actualizare. Pornirea automata nu o mai propune; verificarea manuala
+     * din Setari o arata in continuare.
+     */
+    var skippedUpdateVersion: String?
+        get() = prefs.getString(KEY_SKIPPED_UPDATE, null)
+        set(value) = prefs.edit().putString(KEY_SKIPPED_UPDATE, value).apply()
+
     companion object {
         private const val PREF_FILE = "apaoltenia_settings"
         private const val KEY_THEME = "theme_mode"
         private const val KEY_NOTIFY = "invoice_notifications"
         private const val KEY_AUTO_LOGIN = "auto_login"
         private const val KEY_INVOICE_SIG = "invoice_signature"
+        private const val KEY_AUTO_LOGIN_FAILURES = "auto_login_failures"
+        private const val KEY_SKIPPED_UPDATE = "skipped_update_version"
 
         /** Aplica modul de tema salvat pe intreaga aplicatie. */
         fun applyTheme(mode: Int) {

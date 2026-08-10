@@ -10,6 +10,19 @@ object Changelog {
 
     val entries: List<Entry> = listOf(
         Entry(
+            "1.6.0", "10.08.2026", listOf(
+                "Logo nou: picatura in spatiu negativ pe disc cu gradient — pe iconita, notificari si ecranul de deblocare",
+                "Iconita tematica pentru Android 13+ (Material You)",
+                "Notificarile de facturi noi functioneaza corect (verificarea din fundal reparata)",
+                "Autentificarea automata se opreste singura dupa cateva incercari esuate",
+                "Verificarea suplimentara cu parola la stergerea contului ramane activa si dupa o anulare",
+                "Descarcarea actualizarilor verifica integritatea fisierului",
+                "\"Mai tarziu\" la actualizari e tinut minte — dialogul nu mai revine la fiecare pornire",
+                "Verificarea de actualizari deosebeste lipsa de internet de lipsa de noutati",
+                "Consum mai mic de baterie cand aplicatia e in fundal"
+            )
+        ),
+        Entry(
             "1.5.0", "13.07.2026", listOf(
                 "Acces direct in aplicatie cand sesiunea e inca valida (fara login)",
                 "Sesiunea de login se pastreaza mult mai mult, chiar dupa inchidere sau in fundal",
