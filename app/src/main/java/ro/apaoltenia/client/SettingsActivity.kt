@@ -113,12 +113,15 @@ class SettingsActivity : AppCompatActivity() {
             binding.checkUpdatesButton.isEnabled = false
             toast(getString(R.string.update_checking))
             lifecycleScope.launch {
-                val update = UpdateChecker.check(BuildConfig.VERSION_NAME)
+                val result = UpdateChecker.check(BuildConfig.VERSION_NAME)
                 binding.checkUpdatesButton.isEnabled = true
-                if (update == null) {
-                    toast(getString(R.string.update_up_to_date))
-                } else {
-                    promptUpdate(update)
+                when (result) {
+                    is UpdateChecker.CheckResult.Available -> promptUpdate(result.update)
+                    UpdateChecker.CheckResult.UpToDate ->
+                        toast(getString(R.string.update_up_to_date))
+                    // Offline / eroare API: nu pretindem ca esti la zi.
+                    UpdateChecker.CheckResult.Failed ->
+                        toast(getString(R.string.update_check_failed))
                 }
             }
         }

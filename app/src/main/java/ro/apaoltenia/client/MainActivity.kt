@@ -97,9 +97,17 @@ class MainActivity : AppCompatActivity() {
         if (updateCheckDone) return
         updateCheckDone = true
         lifecycleScope.launch {
-            val update = UpdateChecker.check(BuildConfig.VERSION_NAME) ?: return@launch
+            val result = UpdateChecker.check(BuildConfig.VERSION_NAME)
+            val update = (result as? UpdateChecker.CheckResult.Available)?.update
+                ?: return@launch
+            // "Mai tarziu" ales deja pentru versiunea asta: nu repetam dialogul
+            // la fiecare pornire; verificarea manuala din Setari o arata mereu.
+            if (update.version == prefs.skippedUpdateVersion) return@launch
             if (!isFinishing && !isDestroyed) {
-                UpdateManager.promptAndInstall(this@MainActivity, update)
+                UpdateManager.promptAndInstall(
+                    this@MainActivity, update,
+                    onLater = { prefs.skippedUpdateVersion = update.version }
+                )
             }
         }
     }

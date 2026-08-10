@@ -15,15 +15,28 @@ object UpdateChecker {
 
     data class Update(val version: String, val downloadUrl: String, val pageUrl: String)
 
+    /**
+     * Rezultatul verificarii: existenta unei versiuni noi, "esti la zi" sau
+     * esec de retea. Fara distinctia din urma, o verificare offline ar raporta
+     * fals "ai deja cea mai noua versiune".
+     */
+    sealed class CheckResult {
+        data class Available(val update: Update) : CheckResult()
+        data object UpToDate : CheckResult()
+        data object Failed : CheckResult()
+    }
+
     private const val API =
         "https://api.github.com/repos/CristianCasapu/apaoltenia-app/releases/latest"
 
-    /** Returneaza un [Update] daca exista o versiune mai noua, altfel null. */
-    suspend fun check(currentVersion: String): Update? = withContext(Dispatchers.IO) {
-        val json = fetch(API) ?: return@withContext null
+    /** Verifica ultimul release publicat si compara cu versiunea curenta. */
+    suspend fun check(currentVersion: String): CheckResult = withContext(Dispatchers.IO) {
+        val json = fetch(API) ?: return@withContext CheckResult.Failed
         val obj = JSONObject(json)
         val tag = obj.optString("tag_name").removePrefix("v")
-        if (tag.isBlank() || !isNewer(tag, currentVersion)) return@withContext null
+        if (tag.isBlank() || !isNewer(tag, currentVersion)) {
+            return@withContext CheckResult.UpToDate
+        }
 
         val pageUrl = obj.optString("html_url")
         val assets = obj.optJSONArray("assets")
@@ -36,7 +49,7 @@ object UpdateChecker {
                 }
             }
         }
-        Update(tag, apk, pageUrl)
+        CheckResult.Available(Update(tag, apk, pageUrl))
     }
 
     private fun fetch(url: String): String? {
@@ -59,8 +72,13 @@ object UpdateChecker {
 
     /** Compara versiuni de forma "1.2.3". true daca [candidate] > [current]. */
     private fun isNewer(candidate: String, current: String): Boolean {
-        val a = candidate.split(".").mapNotNull { it.toIntOrNull() }
-        val b = current.split(".").mapNotNull { it.toIntOrNull() }
+        // Pastram doar prefixul numeric al fiecarui segment ("0-beta" -> 0).
+        // mapNotNull ar fi ELIMINAT segmentul nenumeric, mutand restul pe
+        // pozitii gresite (ex. "1.x.5" ar fi devenit [1, 5] = major.minor).
+        fun parse(v: String) = v.split(".")
+            .map { seg -> seg.takeWhile { it.isDigit() }.toIntOrNull() ?: 0 }
+        val a = parse(candidate)
+        val b = parse(current)
         val n = maxOf(a.size, b.size)
         for (i in 0 until n) {
             val x = a.getOrElse(i) { 0 }

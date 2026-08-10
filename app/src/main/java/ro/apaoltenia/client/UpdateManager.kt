@@ -28,22 +28,31 @@ object UpdateManager {
     /**
      * Dialogul standard "Actualizare disponibila": la confirmare descarca
      * APK-ul cu bara de progres si porneste instalatorul Android.
+     * [onLater] e apelat cand utilizatorul alege "Mai tarziu" — pornirea
+     * automata il foloseste ca sa nu mai repete dialogul pentru aceeasi
+     * versiune la fiecare deschidere.
      */
-    fun promptAndInstall(activity: Activity, update: UpdateChecker.Update) {
+    fun promptAndInstall(
+        activity: Activity,
+        update: UpdateChecker.Update,
+        onLater: (() -> Unit)? = null
+    ) {
         AlertDialog.Builder(activity)
             .setTitle(R.string.update_available_title)
             .setMessage(activity.getString(R.string.update_available_message, update.version))
             .setPositiveButton(R.string.update_install) { _, _ ->
                 downloadAndInstall(activity, update)
             }
-            .setNegativeButton(R.string.update_later, null)
+            .setNegativeButton(R.string.update_later) { _, _ -> onLater?.invoke() }
             .show()
     }
 
     private fun downloadAndInstall(activity: Activity, update: UpdateChecker.Update) {
         // Fara asset APK in release (caz teoretic) — deschidem pagina in browser.
         if (!update.downloadUrl.endsWith(".apk", ignoreCase = true)) {
-            activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(update.pageUrl)))
+            runCatching {
+                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(update.pageUrl)))
+            }
             return
         }
 
@@ -99,10 +108,10 @@ object UpdateManager {
             if (conn.responseCode != 200) return@withContext null
 
             val total = conn.contentLengthLong
+            var copied = 0L
             conn.inputStream.use { input ->
                 target.outputStream().use { output ->
                     val buffer = ByteArray(64 * 1024)
-                    var copied = 0L
                     var lastPercent = -1
                     while (true) {
                         val read = input.read(buffer)
@@ -117,6 +126,12 @@ object UpdateManager {
                     }
                 }
             }
+            // Conexiune intrerupta la mijloc: fisierul partial ar ajunge la
+            // instalator si ar esua cu "problema la parsarea pachetului".
+            if (copied == 0L || (total > 0 && copied != total)) {
+                target.delete()
+                return@withContext null
+            }
             target
         } catch (_: Exception) {
             null
@@ -129,10 +144,19 @@ object UpdateManager {
         val uri = FileProvider.getUriForFile(
             activity, "${BuildConfig.APPLICATION_ID}.fileProvider", apk
         )
-        activity.startActivity(Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(uri, "application/vnd.android.package-archive")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        })
+        // runCatching: fara instalator disponibil (profil restrictionat etc.)
+        // un ActivityNotFoundException ar prabusi aplicatia.
+        runCatching {
+            activity.startActivity(Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            })
+        }.onFailure {
+            AlertDialog.Builder(activity)
+                .setMessage(R.string.update_download_failed)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
     }
 }
