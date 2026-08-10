@@ -118,7 +118,8 @@ html .face .titluLogin h2::after {
   width: 44px;
   height: 44px;
   margin: 14px auto 0;
-  background: linear-gradient(180deg, var(--apao-primary) 0%, var(--apao-primary-strong) 100%);
+  /* acelasi gradient diagonal ca marca aplicatiei (Picatura Oltenia) */
+  background: linear-gradient(135deg, #4FA3D8 0%, var(--apao-primary) 50%, var(--apao-primary-strong) 100%);
   border-radius: 0 50% 50% 50%;
   transform: rotate(45deg);
   box-shadow: 0 6px 18px var(--apao-primary-soft);

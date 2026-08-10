@@ -54,12 +54,13 @@
             android:background="?attr/colorSurface"
             android:visibility="gone">
 
+            <!-- Marca aplicatiei; decorativa (numele e in TextView-ul de sub ea),
+                 fara tint ca sa nu aplatizeze gradientul. -->
             <ImageView
                 android:layout_width="96dp"
                 android:layout_height="96dp"
-                android:src="@drawable/ic_lock"
-                android:contentDescription="@string/app_name"
-                app:tint="?attr/colorPrimary" />
+                android:src="@drawable/ic_logo"
+                android:importantForAccessibility="no" />
 
             <TextView
                 android:layout_width="wrap_content"

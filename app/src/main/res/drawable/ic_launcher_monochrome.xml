@@ -1,0 +1,15 @@
+<!--
+  Stratul monocrom pentru iconitele tematice (Android 13+, Material You):
+  sistemul foloseste doar canalul alfa, deci silueta e un singur path plat,
+  cu valul pastrat ca spatiu negativ (fillType evenOdd).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M54,25 C50.5,29.5 33,51 33,63.5 C33,75.1 42.4,84.5 54,84.5 C65.6,84.5 75,75.1 75,63.5 C75,51 57.5,29.5 54,25 Z M36,65.5 C43,61.5 50,69 57,65.5 C62,63 68,65 72,63.5 L72,68.5 C68,70 62,68 57,70.5 C50,74 43,66.5 36,70.5 Z" />
+</vector>
