@@ -1,9 +1,12 @@
 package ro.apaoltenia.client
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import android.widget.Toast
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -17,6 +20,7 @@ import javax.crypto.spec.GCMParameterSpec
  */
 class CredentialStore(context: Context) {
 
+    private val appContext = context.applicationContext
     private val prefs = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
     val hasCredentials: Boolean
@@ -78,7 +82,17 @@ class CredentialStore(context: Context) {
         } catch (_: Exception) {
             // Cheia din Keystore a fost invalidata (ex. resetarea metodelor de
             // deblocare) — datele nu mai pot fi recuperate, cerem re-logare.
+            // Anuntam utilizatorul o singura data; altfel datele ar disparea
+            // silentios si lipsa autocompletarii ar parea un defect.
+            val hadData = prefs.contains(KEY_EMAIL) || prefs.contains(KEY_PASSWORD)
             clear()
+            if (hadData) {
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(
+                        appContext, R.string.credentials_invalidated, Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
             null
         }
     }

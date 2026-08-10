@@ -18,12 +18,19 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var prefs: AppPreferences
 
+    /**
+     * True cat timp schimbam programatic switch-ul de notificari, ca
+     * listener-ul sa nu se reapeleze singur (setarea isChecked din interiorul
+     * lui il declanseaza din nou).
+     */
+    private var suppressNotifyListener = false
+
     private val notificationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
                 enableNotifications()
             } else {
-                binding.notifySwitch.isChecked = false
+                setNotifySwitch(false)
                 toast(getString(R.string.notif_permission_denied))
             }
         }
@@ -76,6 +83,7 @@ class SettingsActivity : AppCompatActivity() {
     private fun setupNotifications() {
         binding.notifySwitch.isChecked = prefs.invoiceNotificationsEnabled
         binding.notifySwitch.setOnCheckedChangeListener { _, checked ->
+            if (suppressNotifyListener) return@setOnCheckedChangeListener
             if (!checked) {
                 prefs.invoiceNotificationsEnabled = false
                 InvoiceCheckScheduler.disable(this)
@@ -83,7 +91,7 @@ class SettingsActivity : AppCompatActivity() {
             }
             // Verificarea in fundal are sens doar daca exista o sesiune de reluat.
             if (!CredentialStore(this).hasCredentials) {
-                binding.notifySwitch.isChecked = false
+                setNotifySwitch(false)
                 toast(getString(R.string.settings_notify_needs_login))
                 return@setOnCheckedChangeListener
             }
@@ -97,9 +105,16 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    /** Schimba switch-ul fara sa (re)declanseze listener-ul. */
+    private fun setNotifySwitch(checked: Boolean) {
+        suppressNotifyListener = true
+        binding.notifySwitch.isChecked = checked
+        suppressNotifyListener = false
+    }
+
     private fun enableNotifications() {
         prefs.invoiceNotificationsEnabled = true
-        binding.notifySwitch.isChecked = true
+        setNotifySwitch(true)
         InvoiceCheckScheduler.enable(this)
     }
 
@@ -141,7 +156,7 @@ class SettingsActivity : AppCompatActivity() {
                     CredentialStore(this).clear()
                     prefs.invoiceNotificationsEnabled = false
                     InvoiceCheckScheduler.disable(this)
-                    binding.notifySwitch.isChecked = false
+                    setNotifySwitch(false)
                     finish()
                 }
                 .setNegativeButton(R.string.save_no, null)
