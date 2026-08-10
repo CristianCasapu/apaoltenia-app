@@ -34,8 +34,13 @@ object NotificationHelper {
             .setContentIntent(pending)
             .build()
 
-        NotificationManagerCompat.from(context)
-            .notify(INVOICE_NOTIFICATION_ID, notification)
+        try {
+            NotificationManagerCompat.from(context)
+                .notify(INVOICE_NOTIFICATION_ID, notification)
+        } catch (_: SecurityException) {
+            // Permisiunea a fost revocata intre verificarea de mai sus si
+            // trimitere; notificarea se pierde silentios, fara crash.
+        }
     }
 
     fun hasPermission(context: Context): Boolean {
