@@ -32,6 +32,18 @@ class MainActivity : AppCompatActivity() {
     private var autoLoginArmed = false
 
     /**
+     * True dupa ce am injectat trimiterea automata a formularului de login.
+     * Daca revenim tot pe login.jsp cu flag-ul setat, acea incercare a esuat
+     * (parola gresita/schimbata) si numaram esecul in AppPreferences.
+     */
+    private var autoSubmitAttempted = false
+
+    /** Verificarea de versiune ruleaza o singura data, dupa deblocare. */
+    private var updateCheckDone = false
+
+    private val prefs by lazy { AppPreferences(this) }
+
+    /**
      * True cand continutul paginii e derulat sus de tot. Raportat din JS,
      * pentru ca aplicatia OpenUI5 a portalului deruleaza intr-un container
      * intern — scroll-ul nativ al WebView-ului ramane mereu 0, iar fara acest
@@ -72,16 +84,18 @@ class MainActivity : AppCompatActivity() {
         } else {
             openPortal()
         }
-
-        checkForUpdate()
     }
 
     /**
-     * Verificare automata de versiune la fiecare pornire. Daca exista o
-     * versiune noua, dialogul descarca si instaleaza APK-ul direct din
-     * aplicatie. Esecurile (offline, rate-limit) sunt silentioase.
+     * Verificare automata de versiune la fiecare pornire — dar abia dupa
+     * deblocare (din openPortal), altfel dialogul de update ar putea acoperi
+     * sau anula promptul biometric. Daca exista o versiune noua, dialogul
+     * descarca si instaleaza APK-ul direct din aplicatie. Esecurile (offline,
+     * rate-limit) sunt silentioase.
      */
     private fun checkForUpdate() {
+        if (updateCheckDone) return
+        updateCheckDone = true
         lifecycleScope.launch {
             val update = UpdateChecker.check(BuildConfig.VERSION_NAME) ?: return@launch
             if (!isFinishing && !isDestroyed) {
@@ -117,6 +131,26 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         persistSession()
+        // Opreste timerele JS si redarea acestui WebView cat timp aplicatia e
+        // in fundal (nu pauseTimers(), care e global si ar ingheta si WebView-ul
+        // ascuns al verificarii de facturi).
+        binding.webView.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.webView.onResume()
+    }
+
+    override fun onDestroy() {
+        // WebView-ul nu e distrus automat cu activitatea; fara destroy() ar
+        // ramane in memorie cu tot cu pagina si timerele injectate.
+        binding.webView.apply {
+            (parent as? android.view.ViewGroup)?.removeView(this)
+            stopLoading()
+            destroy()
+        }
+        super.onDestroy()
     }
 
     /** Scrie imediat pe disc cookie-urile de sesiune ale WebView-ului. */
@@ -144,6 +178,7 @@ class MainActivity : AppCompatActivity() {
      * ori sesiunea mai e valabila.
      */
     private fun openPortal() {
+        checkForUpdate()
         showWebView()
         binding.webView.loadUrl(APP_URL)
     }
@@ -252,6 +287,9 @@ class MainActivity : AppCompatActivity() {
                         })
                     }
                 }
+                // Navigarea a fost interceptata: nu urmeaza niciun onPageFinished
+                // care sa opreasca spinner-ul de pull-to-refresh.
+                binding.swipeRefresh.isRefreshing = false
                 return true
             }
 
@@ -289,7 +327,20 @@ class MainActivity : AppCompatActivity() {
                     // expira intre timp si portalul revine la login.jsp,
                     // completarea automata se declanseaza singura.
                     persistSession()
+                    // Login reusit / sesiune valida: esecurile de auto-login
+                    // de pana acum nu mai conteaza.
+                    autoSubmitAttempted = false
+                    if (prefs.autoLoginFailures != 0) prefs.autoLoginFailures = 0
                     return
+                }
+
+                // Am aterizat (din nou) pe login dupa o trimitere automata:
+                // acea incercare a esuat — probabil parola s-a schimbat in
+                // portal. Numaram, ca dupa cateva esecuri sa nu mai trimitem
+                // automat (risc de blocare a contului), doar sa completam.
+                if (autoSubmitAttempted) {
+                    autoSubmitAttempted = false
+                    prefs.autoLoginFailures = prefs.autoLoginFailures + 1
                 }
 
                 if (autoLoginArmed && store.hasCredentials) {
@@ -297,8 +348,11 @@ class MainActivity : AppCompatActivity() {
                     val password = store.password
                     if (email != null && password != null) {
                         injectAutoFill(email, password)
-                        if (AppPreferences(this@MainActivity).autoLoginEnabled) {
+                        if (prefs.autoLoginEnabled &&
+                            prefs.autoLoginFailures < MAX_AUTO_LOGIN_FAILURES
+                        ) {
                             injectAutoSubmit()
+                            autoSubmitAttempted = true
                         }
                     }
                     autoLoginArmed = false
@@ -315,7 +369,14 @@ class MainActivity : AppCompatActivity() {
                 super.onReceivedError(view, request, error)
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
-                if (request.isForMainFrame) showErrorState()
+                // ERR_ABORTED apare cand o navigare e inlocuita de alta (redirect
+                // in timpul unui refresh, dublu reload) — pagina reala s-a
+                // incarcat, deci nu acoperim continutul cu ecranul de eroare.
+                if (request.isForMainFrame &&
+                    error.description?.toString() != "net::ERR_ABORTED"
+                ) {
+                    showErrorState()
+                }
             }
         }
     }
@@ -404,6 +465,7 @@ class MainActivity : AppCompatActivity() {
               if (window.__apaoChartHook) return;
               window.__apaoChartHook = true;
               function fix() {
+                if (document.hidden) return;
                 if (!window.Chart || !window.Chart.instances) return;
                 Object.keys(window.Chart.instances).forEach(function(k) {
                   var inst = window.Chart.instances[k];
@@ -533,12 +595,17 @@ class MainActivity : AppCompatActivity() {
               };
               window.__apaoCancelDelete = function() {
                 var d = confirmDialog(); if (!d) return;
+                // OpenUI5 refoloseste acelasi dialog: fara reset, gardul cu
+                // parola nu s-ar mai declansa la urmatoarea deschidere.
+                d.__apaoSeen = false;
                 var nu = btnByText(d, /^Nu$/i);
                 if (nu) { var c = uicontrol(nu); if (c && c.firePress) c.firePress(); else nu.click(); }
               };
               function deleteGuard() {
                 var d = confirmDialog();
-                if (!d || d.__apaoSeen) return;
+                if (!d) return;
+                if (d.offsetParent === null) { d.__apaoSeen = false; return; }
+                if (d.__apaoSeen) return;
                 d.__apaoSeen = true;
                 if (window.AndroidBridge && AndroidBridge.requestDeleteAccount) {
                   AndroidBridge.requestDeleteAccount();
@@ -561,7 +628,7 @@ class MainActivity : AppCompatActivity() {
                 } catch (e) {}
               }
 
-              function tick() { addA11yItem(); hideFloating(); deleteGuard(); styleEditorFrame(); }
+              function tick() { if (document.hidden) return; addA11yItem(); hideFloating(); deleteGuard(); styleEditorFrame(); }
               try { new MutationObserver(tick).observe(document.body, { childList: true, subtree: true }); } catch (e) {}
               setInterval(tick, 700);
               tick();
@@ -785,6 +852,8 @@ class MainActivity : AppCompatActivity() {
                 .setMessage(if (isUpdate) R.string.update_message else R.string.save_message)
                 .setPositiveButton(R.string.save_yes) { _, _ ->
                     store.save(email, password)
+                    // Date noi salvate: esecurile vechi de auto-login nu mai conteaza.
+                    prefs.autoLoginFailures = 0
                 }
                 .setNegativeButton(R.string.save_no, null)
                 .show()
@@ -801,6 +870,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val PORTAL_DOMAIN = "apaoltenia.ro"
+        /** Dupa atatea trimiteri automate esuate, doar completam, nu mai trimitem. */
+        private const val MAX_AUTO_LOGIN_FAILURES = 3
         // Punctul de intrare in aplicatia portalului. Deschis direct la
         // pornire: daca sesiunea e valida se incarca pe loc, altfel portalul
         // redirectioneaza singur la pagina de login (login.jsp).
