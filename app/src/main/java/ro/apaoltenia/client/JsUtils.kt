@@ -30,3 +30,24 @@ internal fun isPortalUrl(url: String?, domain: String): Boolean {
     return host.equals(domain, ignoreCase = true) ||
         host.endsWith(".$domain", ignoreCase = true)
 }
+
+/**
+ * Deduce un nume de fisier pentru un download. Prefera `filename=` din antetul
+ * Content-Disposition; altfel ultimul segment din URL; altfel un nume implicit.
+ * Pur, ca sa fie testabil.
+ */
+internal fun downloadFileName(
+    url: String,
+    contentDisposition: String?,
+    default: String = "factura.pdf"
+): String {
+    contentDisposition?.let { cd ->
+        // filename*=UTF-8''nume.pdf  sau  filename="nume.pdf"
+        Regex("""filename\*?=(?:UTF-8'')?"?([^\";]+)"?""", RegexOption.IGNORE_CASE)
+            .find(cd)?.groupValues?.get(1)?.trim()
+            ?.let { name -> if (name.isNotBlank()) return name.substringAfterLast('/') }
+    }
+    val fromUrl = runCatching { URI(url).path }.getOrNull()
+        ?.substringAfterLast('/')?.substringBefore('?')
+    return if (!fromUrl.isNullOrBlank()) fromUrl else default
+}

@@ -16,6 +16,7 @@ import android.webkit.WebViewClient
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
@@ -53,6 +54,8 @@ class MainActivity : AppCompatActivity() {
     private var pageAtTop = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Splash-ul trebuie instalat inainte de super.onCreate.
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -166,6 +169,35 @@ class MainActivity : AppCompatActivity() {
         CookieManager.getInstance().flush()
     }
 
+    /**
+     * Descarca un fisier servit de portal (tipic factura PDF) prin
+     * DownloadManager, cu cookie-ul de sesiune atasat ca serverul sa ne
+     * recunoasca. Se salveaza in folderul Descarcari, cu notificare la final.
+     */
+    private fun downloadFile(url: String, contentDisposition: String?, mimeType: String?) {
+        if (!url.startsWith("https://", ignoreCase = true)) return
+        val fileName = downloadFileName(url, contentDisposition)
+        runCatching {
+            val request = android.app.DownloadManager.Request(android.net.Uri.parse(url)).apply {
+                CookieManager.getInstance().getCookie(url)?.let {
+                    addRequestHeader("Cookie", it)
+                }
+                setMimeType(mimeType)
+                setTitle(fileName)
+                setNotificationVisibility(
+                    android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+                )
+                setDestinationInExternalPublicDir(
+                    android.os.Environment.DIRECTORY_DOWNLOADS, fileName
+                )
+            }
+            (getSystemService(DOWNLOAD_SERVICE) as android.app.DownloadManager).enqueue(request)
+            Toast.makeText(this, R.string.download_started, Toast.LENGTH_SHORT).show()
+        }.onFailure {
+            Toast.makeText(this, R.string.download_failed, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun runBiometric() {
         biometric.authenticate(
             onSuccess = {
@@ -273,6 +305,13 @@ class MainActivity : AppCompatActivity() {
             ),
             "AndroidBridge"
         )
+
+        // Descarcarea facturilor PDF: fara acest listener, apasarea pe
+        // "descarca" din portal era un no-op complet. Predam URL-ul catre
+        // DownloadManager cu cookie-ul de sesiune atasat.
+        web.setDownloadListener { url, _, contentDisposition, mimeType, _ ->
+            downloadFile(url, contentDisposition, mimeType)
+        }
 
         web.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(

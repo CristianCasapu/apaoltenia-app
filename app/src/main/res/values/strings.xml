@@ -73,6 +73,20 @@
     <!-- Navigatie -->
     <string name="nav_back">Inapoi</string>
 
+    <!-- Descarcari -->
+    <string name="download_started">Se descarca fisierul…</string>
+    <string name="download_failed">Descarcarea nu a putut porni.</string>
+
+    <!-- Verificare manuala facturi -->
+    <string name="settings_check_invoices_now">Verifica facturile acum</string>
+    <string name="settings_checking_invoices">Se verifica facturile…</string>
+    <string name="settings_last_check">Ultima verificare: %1$s · %2$s</string>
+    <string name="check_outcome_new">factura noua gasita</string>
+    <string name="check_outcome_ok">nicio factura noua</string>
+    <string name="check_outcome_expired">sesiune expirata (autentifica-te din nou)</string>
+    <string name="check_outcome_nodata">pagina nu s-a incarcat complet</string>
+    <string name="check_outcome_error">verificarea a esuat</string>
+
     <!-- Notificari facturi -->
     <string name="notif_channel_name">Facturi noi</string>
     <string name="notif_channel_desc">Anunt cand apare o factura noua in portalul ApaOltenia.</string>

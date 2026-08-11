@@ -50,4 +50,26 @@ class JsUtilsTest {
 
     @Test fun portal_url_invalid() =
         assertFalse(isPortalUrl("nu e url", domain))
+
+    // ── downloadFileName ───────────────────────────────────────────────────
+    @Test fun nume_din_content_disposition() =
+        assertEquals(
+            "factura-123.pdf",
+            downloadFileName("https://x/y", "attachment; filename=\"factura-123.pdf\"")
+        )
+
+    @Test fun nume_din_content_disposition_utf8() =
+        assertEquals(
+            "factură.pdf",
+            downloadFileName("https://x/y", "attachment; filename*=UTF-8''factură.pdf")
+        )
+
+    @Test fun nume_din_url_cand_lipseste_dispozitia() =
+        assertEquals("doc.pdf", downloadFileName("https://x/files/doc.pdf", null))
+
+    @Test fun nume_din_url_ignora_query() =
+        assertEquals("doc.pdf", downloadFileName("https://x/files/doc.pdf?token=abc", null))
+
+    @Test fun nume_implicit_cand_nu_avem_nimic() =
+        assertEquals("factura.pdf", downloadFileName("https://x/", null))
 }

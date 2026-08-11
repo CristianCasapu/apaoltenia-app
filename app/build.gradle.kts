@@ -93,6 +93,7 @@ dependencies {
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
     implementation("androidx.activity:activity-ktx:1.9.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // WebView modern (algorithmic darkening, safe browsing) prin androidx.webkit
     implementation("androidx.webkit:webkit:1.11.0")
