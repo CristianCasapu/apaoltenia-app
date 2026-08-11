@@ -11,4 +11,13 @@
         <item name="toolbarStyle">@style/Widget.ApaOltenia.Toolbar</item>
         <item name="android:statusBarColor">@color/toolbar_bg</item>
     </style>
+
+    <!-- Ecran de pornire (splash) cu marca aplicatiei pe fundal de brand.
+         Instalat prin androidx.core:core-splashscreen; dupa splash trece la
+         tema normala (postSplashScreenTheme). -->
+    <style name="Theme.ApaOltenia.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/brand_primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.ApaOltenia</item>
+    </style>
 </resources>

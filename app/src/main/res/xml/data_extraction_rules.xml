@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Excludem preferintele si credentialele criptate din backup-ul in cloud si din
+  transferul catre alt dispozitiv. Cheia de criptare traieste doar in Android
+  Keystore (nu paraseste telefonul), asa ca un blob mutat pe alt telefon ar fi
+  oricum inutilizabil — mai bine nu-l transferam deloc decat sa producem
+  mesajul "date invalidate" ca prima experienta pe telefonul nou.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="apaoltenia_credentials.xml" />
+        <exclude domain="sharedpref" path="apaoltenia_settings.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="apaoltenia_credentials.xml" />
+        <exclude domain="sharedpref" path="apaoltenia_settings.xml" />
+    </device-transfer>
+</data-extraction-rules>

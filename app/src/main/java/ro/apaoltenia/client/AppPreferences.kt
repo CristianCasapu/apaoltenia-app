@@ -59,6 +59,16 @@ class AppPreferences(context: Context) {
         get() = prefs.getString(KEY_SKIPPED_UPDATE, null)
         set(value) = prefs.edit().putString(KEY_SKIPPED_UPDATE, value).apply()
 
+    /** Momentul (epoch ms) ultimei verificari de facturi din fundal. 0 = niciodata. */
+    var lastInvoiceCheckAt: Long
+        get() = prefs.getLong(KEY_LAST_CHECK_AT, 0L)
+        set(value) = prefs.edit().putLong(KEY_LAST_CHECK_AT, value).apply()
+
+    /** Rezultatul ultimei verificari (vezi InvoiceCheckWorker.Outcome). */
+    var lastInvoiceCheckOutcome: String?
+        get() = prefs.getString(KEY_LAST_CHECK_OUTCOME, null)
+        set(value) = prefs.edit().putString(KEY_LAST_CHECK_OUTCOME, value).apply()
+
     companion object {
         private const val PREF_FILE = "apaoltenia_settings"
         private const val KEY_THEME = "theme_mode"
@@ -67,6 +77,8 @@ class AppPreferences(context: Context) {
         private const val KEY_INVOICE_SIG = "invoice_signature"
         private const val KEY_AUTO_LOGIN_FAILURES = "auto_login_failures"
         private const val KEY_SKIPPED_UPDATE = "skipped_update_version"
+        private const val KEY_LAST_CHECK_AT = "last_invoice_check_at"
+        private const val KEY_LAST_CHECK_OUTCOME = "last_invoice_check_outcome"
 
         /** Aplica modul de tema salvat pe intreaga aplicatie. */
         fun applyTheme(mode: Int) {

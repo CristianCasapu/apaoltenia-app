@@ -16,6 +16,7 @@ import android.webkit.WebViewClient
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
@@ -53,6 +54,8 @@ class MainActivity : AppCompatActivity() {
     private var pageAtTop = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Splash-ul trebuie instalat inainte de super.onCreate.
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -166,6 +169,35 @@ class MainActivity : AppCompatActivity() {
         CookieManager.getInstance().flush()
     }
 
+    /**
+     * Descarca un fisier servit de portal (tipic factura PDF) prin
+     * DownloadManager, cu cookie-ul de sesiune atasat ca serverul sa ne
+     * recunoasca. Se salveaza in folderul Descarcari, cu notificare la final.
+     */
+    private fun downloadFile(url: String, contentDisposition: String?, mimeType: String?) {
+        if (!url.startsWith("https://", ignoreCase = true)) return
+        val fileName = downloadFileName(url, contentDisposition)
+        runCatching {
+            val request = android.app.DownloadManager.Request(android.net.Uri.parse(url)).apply {
+                CookieManager.getInstance().getCookie(url)?.let {
+                    addRequestHeader("Cookie", it)
+                }
+                setMimeType(mimeType)
+                setTitle(fileName)
+                setNotificationVisibility(
+                    android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+                )
+                setDestinationInExternalPublicDir(
+                    android.os.Environment.DIRECTORY_DOWNLOADS, fileName
+                )
+            }
+            (getSystemService(DOWNLOAD_SERVICE) as android.app.DownloadManager).enqueue(request)
+            Toast.makeText(this, R.string.download_started, Toast.LENGTH_SHORT).show()
+        }.onFailure {
+            Toast.makeText(this, R.string.download_failed, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun runBiometric() {
         biometric.authenticate(
             onSuccess = {
@@ -222,7 +254,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.forget_title)
             .setMessage(R.string.forget_message)
             .setPositiveButton(R.string.forget_yes) { _, _ ->
-                store.clear()
+                wipeLocalData(this)
                 autoLoginArmed = false
                 openPortal()
             }
@@ -273,6 +305,13 @@ class MainActivity : AppCompatActivity() {
             ),
             "AndroidBridge"
         )
+
+        // Descarcarea facturilor PDF: fara acest listener, apasarea pe
+        // "descarca" din portal era un no-op complet. Predam URL-ul catre
+        // DownloadManager cu cookie-ul de sesiune atasat.
+        web.setDownloadListener { url, _, contentDisposition, mimeType, _ ->
+            downloadFile(url, contentDisposition, mimeType)
+        }
 
         web.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
@@ -402,7 +441,7 @@ class MainActivity : AppCompatActivity() {
      * elementul <style> daca exista deja (idempotent la reincarcari).
      */
     private fun injectCustomStyle(url: String) {
-        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        if (!isPortalUrl(url, PORTAL_DOMAIN)) return
         val b64 = android.util.Base64.encodeToString(
             portalCss.toByteArray(Charsets.UTF_8), android.util.Base64.NO_WRAP
         )
@@ -429,7 +468,7 @@ class MainActivity : AppCompatActivity() {
      * pagina e sus de tot. Idempotent: se instaleaza o singura data pe document.
      */
     private fun injectScrollHook(url: String) {
-        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        if (!isPortalUrl(url, PORTAL_DOMAIN)) return
         val js = """
             (function() {
               if (window.__apaoScrollHook) return;
@@ -467,7 +506,7 @@ class MainActivity : AppCompatActivity() {
      * printr-un MutationObserver + un interval de siguranta.
      */
     private fun injectChartFix(url: String) {
-        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        if (!isPortalUrl(url, PORTAL_DOMAIN)) return
         val js = """
             (function() {
               if (window.__apaoChartHook) return;
@@ -530,7 +569,7 @@ class MainActivity : AppCompatActivity() {
      *     Contact pentru modul intunecat.
      */
     private fun injectPortalEnhancements(url: String) {
-        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        if (!isPortalUrl(url, PORTAL_DOMAIN)) return
         val dark = isDarkTheme()
         val js = """
             (function() {
@@ -672,7 +711,11 @@ class MainActivity : AppCompatActivity() {
             .setView(container)
             .setCancelable(false)
             .setPositiveButton(R.string.delete_confirm_yes) { _, _ ->
-                if (input.text.toString() == stored) {
+                // Comparatie in timp constant, ca sa nu existe un oracol de timing.
+                val ok = java.security.MessageDigest.isEqual(
+                    input.text.toString().toByteArray(), stored.toByteArray()
+                )
+                if (ok) {
                     binding.webView.evaluateJavascript("window.__apaoDoDelete && window.__apaoDoDelete();", null)
                 } else {
                     Toast.makeText(this, R.string.delete_wrong_password, Toast.LENGTH_SHORT).show()
@@ -711,8 +754,8 @@ class MainActivity : AppCompatActivity() {
      * password (inregistrarea are doua, recuperarea are zero).
      */
     private fun injectAutoFill(email: String, password: String) {
-        val safeEmail = jsEscape(email)
-        val safePassword = jsEscape(password)
+        val safeEmail = jsString(email)
+        val safePassword = jsString(password)
         val js = """
             (function() {
               function loginForm() {
@@ -732,9 +775,9 @@ class MainActivity : AppCompatActivity() {
               var user = form.querySelector('input[type=email]') ||
                          form.querySelector('input[type=text]') ||
                          form.querySelector('input:not([type=password]):not([type=hidden]):not([type=checkbox])');
-              if (user) { user.value = '$safeEmail';
+              if (user) { user.value = $safeEmail;
                           user.dispatchEvent(new Event('input',{bubbles:true})); }
-              if (pwd)  { pwd.value = '$safePassword';
+              if (pwd)  { pwd.value = $safePassword;
                           pwd.dispatchEvent(new Event('input',{bubbles:true})); }
             })();
         """.trimIndent()
@@ -868,14 +911,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun jsEscape(value: String): String =
-        value.replace("\\", "\\\\")
-            .replace("'", "\\'")
-            .replace("\n", "")
-            .replace("\r", "")
-            .replace("\u2028", "")
-            .replace("\u2029", "")
-
     companion object {
         private const val PORTAL_DOMAIN = "apaoltenia.ro"
         /** Dupa atatea trimiteri automate esuate, doar completam, nu mai trimitem. */
@@ -885,6 +920,9 @@ class MainActivity : AppCompatActivity() {
         // redirectioneaza singur la pagina de login (login.jsp).
         // Ne-privat: InvoiceCheckWorker trebuie sa incarce exact aceeasi
         // pagina, ca amprenta facturilor sa fie calculata pe aplicatia reala.
+        // Nota: slash-ul dublu (self_utilities//oui) e pastrat intentionat —
+        // e URL-ul care functioneaza in productie; normalizarea lui nu poate fi
+        // verificata fara dispozitiv, deci nu o riscam.
         const val APP_URL =
             "https://clienti.apaoltenia.ro/self_utilities//oui/cl/index.html"
     }

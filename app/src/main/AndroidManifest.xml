@@ -12,6 +12,7 @@
     <application
         android:name=".App"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -23,6 +24,7 @@
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true"
+            android:theme="@style/Theme.ApaOltenia.Starting"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,7 +44,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="ro.apaoltenia.client.fileProvider"
+            android:authorities="${applicationId}.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

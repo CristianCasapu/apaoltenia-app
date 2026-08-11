@@ -26,8 +26,8 @@ android {
         applicationId = "ro.apaoltenia.client"
         minSdk = 30          // Redmi Note 13 Pro ships with Android 13 (API 33)
         targetSdk = 34
-        versionCode = 9
-        versionName = "1.6.0"
+        versionCode = 10
+        versionName = "1.7.0"
 
         // Optimizat pentru Xiaomi Redmi Note 13 Pro (Snapdragon / arm64-v8a).
         // Aplicatia e bazata pe WebView (fara librarii native .so), deci arm64
@@ -77,6 +77,12 @@ android {
         viewBinding = true
         buildConfig = true
     }
+    testOptions {
+        unitTests {
+            // Nu avem nevoie de resurse Android in testele unitare pure.
+            isIncludeAndroidResources = false
+        }
+    }
 }
 
 dependencies {
@@ -87,6 +93,7 @@ dependencies {
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
     implementation("androidx.activity:activity-ktx:1.9.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // WebView modern (algorithmic darkening, safe browsing) prin androidx.webkit
     implementation("androidx.webkit:webkit:1.11.0")
@@ -97,4 +104,11 @@ dependencies {
     // Verificarea periodica a facturilor in fundal
     implementation("androidx.work:work-runtime-ktx:2.9.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    // Teste unitare (JVM pur, fara Robolectric). org.json din android.jar e
+    // doar "stub" in teste, asa ca aducem implementarea reala pe classpath-ul
+    // de test, altfel JSONObject/JSONTokener arunca "Stub!".
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 }

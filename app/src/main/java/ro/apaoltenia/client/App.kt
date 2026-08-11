@@ -13,8 +13,13 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        AppPreferences.applyTheme(AppPreferences(this).themeMode)
+        val prefs = AppPreferences(this)
+        AppPreferences.applyTheme(prefs.themeMode)
         createNotificationChannel()
+        // Re-armam verificarea de facturi daca e activata dar coada WorkManager
+        // s-a pierdut (force-stop, stergere date sistem, restaurare pe telefon
+        // nou). enqueueUniquePeriodicWork cu UPDATE e idempotent.
+        if (prefs.invoiceNotificationsEnabled) InvoiceCheckScheduler.enable(this)
     }
 
     private fun createNotificationChannel() {

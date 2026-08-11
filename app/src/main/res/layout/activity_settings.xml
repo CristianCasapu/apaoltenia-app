@@ -100,6 +100,23 @@
             android:textColor="?android:attr/textColorSecondary"
             android:textSize="13sp" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/checkInvoicesButton"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/settings_check_invoices_now" />
+
+        <TextView
+            android:id="@+id/lastCheckLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
         <View style="@style/SettingsDivider" />
 
         <!-- ACTUALIZARI -->

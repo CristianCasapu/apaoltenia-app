@@ -64,12 +64,28 @@
     <string name="update_download_failed">Descarcarea actualizarii a esuat. Verifica conexiunea si incearca din nou.</string>
     <string name="update_up_to_date">Ai deja cea mai noua versiune.</string>
     <string name="update_check_failed">Nu am putut verifica actualizarile. Incearca mai tarziu.</string>
+    <string name="update_needs_install_permission">Pentru a instala actualizarea direct din aplicatie, permite instalarea aplicatiilor necunoscute din setarile telefonului.</string>
+    <string name="update_open_settings">Deschide setarile</string>
 
     <!-- Date salvate -->
     <string name="credentials_invalidated">Datele de conectare salvate nu au mai putut fi citite (metoda de deblocare a telefonului s-a schimbat). Autentifica-te din nou ca sa le salvezi.</string>
 
     <!-- Navigatie -->
     <string name="nav_back">Inapoi</string>
+
+    <!-- Descarcari -->
+    <string name="download_started">Se descarca fisierul…</string>
+    <string name="download_failed">Descarcarea nu a putut porni.</string>
+
+    <!-- Verificare manuala facturi -->
+    <string name="settings_check_invoices_now">Verifica facturile acum</string>
+    <string name="settings_checking_invoices">Se verifica facturile…</string>
+    <string name="settings_last_check">Ultima verificare: %1$s · %2$s</string>
+    <string name="check_outcome_new">factura noua gasita</string>
+    <string name="check_outcome_ok">nicio factura noua</string>
+    <string name="check_outcome_expired">sesiune expirata (autentifica-te din nou)</string>
+    <string name="check_outcome_nodata">pagina nu s-a incarcat complet</string>
+    <string name="check_outcome_error">verificarea a esuat</string>
 
     <!-- Notificari facturi -->
     <string name="notif_channel_name">Facturi noi</string>
