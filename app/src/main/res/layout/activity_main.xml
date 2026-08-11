@@ -57,42 +57,44 @@
             <!-- Marca aplicatiei; decorativa (numele e in TextView-ul de sub ea),
                  fara tint ca sa nu aplatizeze gradientul. -->
             <ImageView
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="112dp"
+                android:layout_height="112dp"
                 android:src="@drawable/ic_logo"
                 android:importantForAccessibility="no" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="@dimen/apao_space_lg"
                 android:text="@string/app_name"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
                 android:textColor="?attr/colorPrimary" />
 
             <TextView
                 android:id="@+id/unlockStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:text="@string/unlock_hint"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="?android:attr/textColorSecondary"
                 android:gravity="center" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/actionButton"
+                style="@style/Widget.ApaOltenia.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="@dimen/apao_space_lg"
+                android:minWidth="200dp"
                 android:text="@string/unlock_button" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/forgetButton"
-                style="?attr/borderlessButtonStyle"
+                style="@style/Widget.ApaOltenia.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/apao_space_sm"
                 android:text="@string/forget_button"
                 android:visibility="gone" />
         </LinearLayout>

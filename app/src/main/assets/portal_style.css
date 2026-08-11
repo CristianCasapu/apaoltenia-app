@@ -38,12 +38,24 @@ html {
   --apao-border: rgba(0, 114, 188, 0.14);
   --apao-divider: rgba(0, 90, 150, 0.10);
   --apao-shadow: 0 12px 40px rgba(0, 68, 112, 0.14), 0 2px 8px rgba(0, 68, 112, 0.08);
-  --apao-shadow-soft: 0 3px 14px rgba(0, 68, 112, 0.09);
+  --apao-shadow-soft: 0 2px 12px rgba(0, 68, 112, 0.08);
 
   /* campuri */
   --apao-field-bg: #fafcfe;
   --apao-field-border: #cfe0ee;
-  --apao-focus-ring: rgba(0, 114, 188, 0.15);
+  --apao-focus-ring: rgba(0, 114, 188, 0.25);
+
+  /* scara de rotunjiri + inel de focus, in spiritul Bootstrap 5
+     (radius-urile sunt comune ambelor teme) */
+  --apao-radius-sm: 8px;
+  --apao-radius: 10px;
+  --apao-radius-lg: 16px;
+  --apao-radius-pill: 50rem;
+  --apao-ring: 0 0 0 4px var(--apao-focus-ring);
+
+  /* culori semantice (btn-success / btn-danger) */
+  --apao-success: #1e9e5a;
+  --apao-danger: #d9433c;
 }
 
 html.apao-dark {
@@ -70,7 +82,10 @@ html.apao-dark {
 
   --apao-field-bg: #10202d;
   --apao-field-border: #2c4459;
-  --apao-focus-ring: rgba(111, 182, 230, 0.22);
+  --apao-focus-ring: rgba(111, 182, 230, 0.30);
+
+  --apao-success: #7fd89a;
+  --apao-danger: #ff9a8f;
 }
 
 /* ---------- tipografie comuna ---------- */
@@ -131,7 +146,7 @@ html .face .titluLogin h2::after {
 /* cardul de login/inregistrare/recuperare */
 html .face {
   background: var(--apao-surface) !important;
-  border-radius: 18px !important;
+  border-radius: var(--apao-radius-lg) !important;
   box-shadow: var(--apao-shadow) !important;
   border: 1px solid var(--apao-border) !important;
 }
@@ -165,10 +180,10 @@ html .face .content .field-wrapper input[type="password"],
 html .face .content .field-wrapper input[type="number"],
 html .face .content .field-wrapper textarea {
   /* longhand-uri explicite: portalul stileaza bordura pe laturi separate */
-  border-width: 1.5px !important;
+  border-width: 1px !important;
   border-style: solid !important;
   border-color: var(--apao-field-border) !important;
-  border-radius: 10px !important;
+  border-radius: var(--apao-radius-sm) !important;
   padding: 12px 14px !important;
   min-height: 46px !important;
   font-size: 16px !important;
@@ -186,7 +201,7 @@ html .face .content .field-wrapper input[type="password"]:focus,
 html .face .content .field-wrapper input[type="number"]:focus,
 html .face .content .field-wrapper textarea:focus {
   border-color: var(--apao-primary) !important;
-  box-shadow: 0 0 0 3px var(--apao-focus-ring) !important;
+  box-shadow: var(--apao-ring) !important;
   outline: none !important;
 }
 
@@ -195,32 +210,49 @@ html .face .content .div-eye i {
   color: var(--apao-text-muted) !important;
 }
 
-/* butonul principal (Login / trimite) — tinta de atingere confortabila */
+/* butonul principal (Login / trimite) — echivalentul btn-primary:
+   fundal plat, colturi moderate, inel de focus vizibil */
 html .face .content .field-wrapper input[type="submit"] {
-  background: linear-gradient(180deg, var(--apao-primary) 0%, var(--apao-primary-strong) 100%) !important;
+  background: var(--apao-primary) !important;
   color: var(--apao-on-primary) !important;
   border: none !important;
-  border-radius: 12px !important;
+  border-radius: var(--apao-radius) !important;
   font-weight: 700 !important;
   letter-spacing: 0.3px !important;
   padding: 13px 14px !important;
   min-height: 48px !important;
-  box-shadow: 0 4px 14px var(--apao-primary-soft) !important;
-  transition: transform 0.1s ease, box-shadow 0.2s ease !important;
+  box-shadow: 0 2px 8px var(--apao-primary-soft) !important;
+  transition: background-color 0.15s ease, box-shadow 0.2s ease !important;
 }
 
+html .face .content .field-wrapper input[type="submit"]:hover {
+  background: var(--apao-primary-strong) !important;
+}
 html .face .content .field-wrapper input[type="submit"]:active {
-  transform: translateY(1px) !important;
-  box-shadow: 0 2px 6px var(--apao-primary-soft) !important;
+  background: var(--apao-primary-strong) !important;
+  box-shadow: 0 1px 4px var(--apao-primary-soft) !important;
+}
+html .face .content .field-wrapper input[type="submit"]:focus {
+  box-shadow: var(--apao-ring) !important;
+  outline: none !important;
 }
 
-/* butoanele secundare: "Ati uitat parola?", "Inregistreaza-te" */
+/* butoanele secundare: "Ati uitat parola?", "Inregistreaza-te" —
+   echivalentul btn-link */
 html .psw, html .signup, html .singin, html .anulareVfCod {
   color: var(--apao-link) !important;
   font-weight: 600 !important;
   background: transparent !important;
   border: none !important;
+  border-radius: var(--apao-radius-sm) !important;
   min-height: 44px !important;
+}
+html .psw:active, html .signup:active, html .singin:active, html .anulareVfCod:active {
+  text-decoration: underline !important;
+}
+html .psw:focus, html .signup:focus, html .singin:focus, html .anulareVfCod:focus {
+  box-shadow: var(--apao-ring) !important;
+  outline: none !important;
 }
 
 /* meniul de sus al paginii de login */
@@ -378,10 +410,16 @@ html #apao-a11y-item .sapTntNLIText {
   color: var(--apao-text) !important;
 }
 
-/* -- butoane -- */
+/* -- butoane --
+   Ierarhie in spiritul Bootstrap 5:
+     Emphasized  -> btn-primary  (fill plat brand)
+     Default/Transparent -> btn-light (suprafata + bordura discreta)
+     Accept/Success -> btn-outline-success, Reject/Critical -> btn-outline-danger
+   plus inel de focus vizibil pe toate. */
 html .sapMBtnInner {
-  border-radius: 9px !important;
-  transition: filter 0.15s ease !important;
+  border-radius: var(--apao-radius) !important;
+  min-height: 40px !important;
+  transition: background-color 0.15s ease, filter 0.15s ease !important;
 }
 /* text centrat vertical + orizontal in toate butoanele */
 html .sapMBtn .sapMBtnInner,
@@ -397,6 +435,17 @@ html .sapMBtnContent {
 html .face .content .field-wrapper input[type="submit"],
 html .psw, html .signup, html .singin {
   text-align: center !important;
+}
+/* btn-light: butoane obisnuite, pe suprafata cu bordura discreta */
+html .sapMBtnInner.sapMBtnDefault,
+html .sapMBtnInner.sapMBtnTransparent {
+  background: var(--apao-surface) !important;
+  border: 1px solid var(--apao-field-border) !important;
+  color: var(--apao-text) !important;
+}
+html .sapMBtnInner.sapMBtnDefault:hover,
+html .sapMBtnInner.sapMBtnTransparent:hover {
+  background: var(--apao-surface-2) !important;
 }
 html.apao-dark .sapMBtnInner.sapMBtnDefault,
 html.apao-dark .sapMBtnInner.sapMBtnTransparent {
@@ -418,19 +467,50 @@ html .sapContrast span.sapMBtnInner.sapMBtnEmphasized {
 html .sapMBtnInner.sapMBtnEmphasized .sapMBtnContent {
   color: var(--apao-on-primary) !important;
 }
+html .sapMBtnInner.sapMBtnEmphasized:hover,
 html .sapMBtnInner.sapMBtnEmphasized:active {
   background: var(--apao-primary-strong) !important;
 }
 
-/* butoane de succes / critice: pastreaza semantica, doar le rotunjim */
-html .sapMBtnSuccess .sapMBtnInner, html .sapMBtnCritical .sapMBtnInner {
-  border-radius: 9px !important;
+/* inel de focus Bootstrap la navigarea cu tastatura */
+html .sapMBtn:focus .sapMBtnInner,
+html .sapMBtnBase:focus .sapMBtnInner,
+html .sapMBtnInner:focus {
+  box-shadow: var(--apao-ring) !important;
+  outline: none !important;
+}
+html .sapMBtnFocusDiv {
+  border: none !important;
+}
+
+/* butoane semantice in tema clara: aspect outline (btn-outline-success/-danger) */
+html .sapMBtnInner.sapMBtnAccept,
+html .sapMBtnInner.sapMBtnSuccess {
+  background: transparent !important;
+  border: 1px solid var(--apao-success) !important;
+}
+html .sapMBtnAccept .sapMBtnContent,
+html .sapMBtnInner.sapMBtnAccept .sapMBtnIcon,
+html .sapMBtnSuccess .sapMBtnContent,
+html .sapMBtnInner.sapMBtnSuccess .sapMBtnIcon {
+  color: var(--apao-success) !important;
+}
+html .sapMBtnInner.sapMBtnReject,
+html .sapMBtnInner.sapMBtnCritical {
+  background: transparent !important;
+  border: 1px solid var(--apao-danger) !important;
+}
+html .sapMBtnReject .sapMBtnContent,
+html .sapMBtnInner.sapMBtnReject .sapMBtnIcon,
+html .sapMBtnCritical .sapMBtnContent,
+html .sapMBtnInner.sapMBtnCritical .sapMBtnIcon {
+  color: var(--apao-danger) !important;
 }
 
 /* -- panouri / carduri -- */
 html .utiStyle .sapMPanel,
 html .sapMPanel {
-  border-radius: 14px !important;
+  border-radius: var(--apao-radius-lg) !important;
   box-shadow: var(--apao-shadow-soft) !important;
   overflow: hidden !important;
   border: 1px solid var(--apao-border) !important;
@@ -440,6 +520,7 @@ html .sapMPanelContent {
   background: var(--apao-surface) !important;
   color: var(--apao-text) !important;
 }
+/* antetul de panou, in spiritul .card-header din Bootstrap */
 html .utiStyle .sapMPanel > .sapMPanelHdr,
 html .utiStyle .sapMPanelWrappingDiv,
 html .sapMPanelWrappingDivTb,
@@ -447,6 +528,8 @@ html .sapMPanelHdr {
   background: var(--apao-surface-2) !important;
   color: var(--apao-heading) !important;
   border-bottom: 1px solid var(--apao-divider) !important;
+  padding: 12px 16px !important;
+  font-weight: 600 !important;
 }
 
 /* -- sectiunile colorate de pe home (Sold, Transmitere index etc.) -- */
@@ -519,9 +602,10 @@ html .sapMLIB.sapMLIBSelected {
   background: var(--apao-primary-soft) !important;
 }
 
-/* -- inputuri SAP -- */
+/* -- inputuri SAP (aspect .form-control) -- */
 html .sapMInputBaseContentWrapper {
-  border-radius: 9px !important;
+  border-radius: var(--apao-radius-sm) !important;
+  border-width: 1px !important;
   background: var(--apao-field-bg) !important;
   border-color: var(--apao-field-border) !important;
 }
@@ -532,13 +616,19 @@ html .sapMInputBaseInner {
 html .sapMInputBaseContentWrapperState.sapMInputBaseContentWrapperFocus,
 html .sapMInputBaseContentWrapper.sapMInputBaseContentWrapperFocus {
   border-color: var(--apao-primary) !important;
+  box-shadow: var(--apao-ring) !important;
 }
 
 /* -- select-uri si combobox-uri -- */
 html .sapMSlt {
-  border-radius: 9px !important;
+  border-radius: var(--apao-radius-sm) !important;
+  border-width: 1px !important;
   background: var(--apao-field-bg) !important;
   border-color: var(--apao-field-border) !important;
+}
+html .sapMSlt.sapMSltFocused {
+  border-color: var(--apao-primary) !important;
+  box-shadow: var(--apao-ring) !important;
 }
 html .sapMSltLabel,
 html .sapMSltArrow,
@@ -558,7 +648,7 @@ html .sapMSelectListItemBaseSelected {
   background: var(--apao-primary-soft) !important;
 }
 
-/* -- tab bar (Configurari) -- */
+/* -- tab bar (Configurari) — aspect nav-pills din Bootstrap -- */
 html .sapMITBHead,
 html .sapMITB.sapMITBBackgroundDesignSolid {
   background: var(--apao-surface) !important;
@@ -566,8 +656,22 @@ html .sapMITB.sapMITBBackgroundDesignSolid {
 html .sapMITBText {
   color: var(--apao-text) !important;
 }
-html .sapMITBSelected .sapMITBText {
-  color: var(--apao-primary) !important;
+html .sapMITBFilter,
+html .sapMITBItem {
+  border-radius: var(--apao-radius-pill) !important;
+  margin: 4px !important;
+  transition: background-color 0.15s ease !important;
+}
+html .sapMITBFilter:hover {
+  background: var(--apao-primary-soft) !important;
+}
+html .sapMITBFilter.sapMITBSelected,
+html .sapMITBItem.sapMITBSelected {
+  background: var(--apao-primary) !important;
+}
+html .sapMITBSelected .sapMITBText,
+html .sapMITBSelected .sapMITBCount {
+  color: var(--apao-on-primary) !important;
 }
 html .sapMITBContent {
   background: transparent !important;
@@ -581,7 +685,10 @@ html.apao-dark .redColor {
   color: #ff9a8f !important;
 }
 
-/* -- checkbox-uri -- */
+/* -- checkbox-uri (colt de .form-check-input) -- */
+html .sapMCbMark {
+  border-radius: 4px !important;
+}
 html .sapMCbMarkChecked {
   color: var(--apao-primary) !important;
 }
@@ -600,7 +707,7 @@ html .sapMIBar.sapMFooter-CTX {
 
 /* -- popover-uri si dialoguri -- */
 html .sapMPopover, html .sapMDialog {
-  border-radius: 14px !important;
+  border-radius: var(--apao-radius-lg) !important;
   overflow: hidden !important;
 }
 html .sapMPopoverCont, html .sapMDialogSection, html .sapMDialogScrollCont {

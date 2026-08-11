@@ -3,10 +3,7 @@ package ro.apaoltenia.client
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
 import android.view.View
-import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.Toast
 import android.webkit.CookieManager
 import android.webkit.WebResourceError
@@ -14,12 +11,13 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.addCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 import ro.apaoltenia.client.databinding.ActivityMainBinding
 
@@ -250,7 +248,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun confirmForgetCredentials() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.forget_title)
             .setMessage(R.string.forget_message)
             .setPositiveButton(R.string.forget_yes) { _, _ ->
@@ -696,24 +694,17 @@ class MainActivity : AppCompatActivity() {
             binding.webView.evaluateJavascript("window.__apaoDoDelete && window.__apaoDoDelete();", null)
             return
         }
-        val input = EditText(this).apply {
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            hint = getString(R.string.delete_password_hint)
-        }
-        val pad = (20 * resources.displayMetrics.density).toInt()
-        val container = FrameLayout(this).apply {
-            setPadding(pad, pad / 2, pad, 0)
-            addView(input)
-        }
-        AlertDialog.Builder(this)
+        val view = layoutInflater.inflate(R.layout.dialog_password, null)
+        val input = view.findViewById<TextInputEditText>(R.id.passwordInput)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete_confirm_title)
             .setMessage(R.string.delete_confirm_message)
-            .setView(container)
+            .setView(view)
             .setCancelable(false)
             .setPositiveButton(R.string.delete_confirm_yes) { _, _ ->
                 // Comparatie in timp constant, ca sa nu existe un oracol de timing.
                 val ok = java.security.MessageDigest.isEqual(
-                    input.text.toString().toByteArray(), stored.toByteArray()
+                    input.text?.toString().orEmpty().toByteArray(), stored.toByteArray()
                 )
                 if (ok) {
                     binding.webView.evaluateJavascript("window.__apaoDoDelete && window.__apaoDoDelete();", null)
@@ -898,7 +889,7 @@ class MainActivity : AppCompatActivity() {
                 return@runOnUiThread
             }
 
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(if (isUpdate) R.string.update_title else R.string.save_title)
                 .setMessage(if (isUpdate) R.string.update_message else R.string.save_message)
                 .setPositiveButton(R.string.save_yes) { _, _ ->

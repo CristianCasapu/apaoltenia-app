@@ -8,13 +8,13 @@ import android.text.format.DateUtils
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import ro.apaoltenia.client.databinding.ActivitySettingsBinding
 
@@ -206,7 +206,7 @@ class SettingsActivity : AppCompatActivity() {
     // ── Date salvate ─────────────────────────────────────────────────────────
     private fun setupData() {
         binding.forgetButton.setOnClickListener {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.forget_title)
                 .setMessage(R.string.forget_message)
                 .setPositiveButton(R.string.forget_yes) { _, _ ->

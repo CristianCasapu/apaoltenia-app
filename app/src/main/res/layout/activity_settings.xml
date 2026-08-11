@@ -22,160 +22,222 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="@dimen/apao_space_md">
 
         <!-- AUTENTIFICARE -->
         <TextView
             style="@style/SettingsSectionHeader"
             android:text="@string/settings_login" />
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/autoLoginSwitch"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.ApaOltenia.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="@string/settings_auto_login" />
+            android:layout_marginBottom="@dimen/apao_space_md">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/settings_auto_login_hint"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="13sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/apao_space_md">
 
-        <View style="@style/SettingsDivider" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/autoLoginSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/apao_touch_target"
+                    android:text="@string/settings_auto_login" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/apao_space_xs"
+                    android:text="@string/settings_auto_login_hint"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- TEMA -->
         <TextView
             style="@style/SettingsSectionHeader"
             android:text="@string/settings_theme" />
 
-        <RadioGroup
-            android:id="@+id/themeGroup"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.ApaOltenia.Card"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/apao_space_md">
 
-            <RadioButton
-                android:id="@+id/themeSystem"
+            <RadioGroup
+                android:id="@+id/themeGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="@string/settings_theme_system" />
+                android:padding="@dimen/apao_space_md">
 
-            <RadioButton
-                android:id="@+id/themeLight"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="@string/settings_theme_light" />
+                <RadioButton
+                    android:id="@+id/themeSystem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/apao_touch_target"
+                    android:text="@string/settings_theme_system" />
 
-            <RadioButton
-                android:id="@+id/themeDark"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="@string/settings_theme_dark" />
-        </RadioGroup>
+                <RadioButton
+                    android:id="@+id/themeLight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/apao_touch_target"
+                    android:text="@string/settings_theme_light" />
 
-        <View style="@style/SettingsDivider" />
+                <RadioButton
+                    android:id="@+id/themeDark"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/apao_touch_target"
+                    android:text="@string/settings_theme_dark" />
+            </RadioGroup>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- NOTIFICARI -->
         <TextView
             style="@style/SettingsSectionHeader"
             android:text="@string/settings_notifications" />
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/notifySwitch"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.ApaOltenia.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="@string/settings_notify_invoices" />
+            android:layout_marginBottom="@dimen/apao_space_md">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/settings_notify_hint"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="13sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/apao_space_md">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/checkInvoicesButton"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/settings_check_invoices_now" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/notifySwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/apao_touch_target"
+                    android:text="@string/settings_notify_invoices" />
 
-        <TextView
-            android:id="@+id/lastCheckLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="13sp"
-            android:visibility="gone" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/apao_space_xs"
+                    android:text="@string/settings_notify_hint"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="13sp" />
 
-        <View style="@style/SettingsDivider" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/checkInvoicesButton"
+                    style="@style/Widget.ApaOltenia.Button.Tonal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/apao_space_sm"
+                    android:text="@string/settings_check_invoices_now" />
+
+                <TextView
+                    android:id="@+id/lastCheckLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/apao_space_xs"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- ACTUALIZARI -->
         <TextView
             style="@style/SettingsSectionHeader"
             android:text="@string/settings_updates" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/checkUpdatesButton"
-            style="@style/Widget.Material3.Button.TonalButton"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.ApaOltenia.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_check_updates" />
+            android:layout_marginBottom="@dimen/apao_space_md">
 
-        <TextView
-            android:id="@+id/versionLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="13sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/apao_space_md">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/changelogButton"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/settings_changelog_button" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/checkUpdatesButton"
+                    style="@style/Widget.ApaOltenia.Button.Tonal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_check_updates" />
 
-        <View style="@style/SettingsDivider" />
+                <TextView
+                    android:id="@+id/versionLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/apao_space_sm"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/changelogButton"
+                    style="@style/Widget.ApaOltenia.Button.Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/apao_space_xs"
+                    android:text="@string/settings_changelog_button" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- DATE SALVATE -->
         <TextView
             style="@style/SettingsSectionHeader"
             android:text="@string/settings_data" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/forgetButton"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.ApaOltenia.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/forget_button" />
+            android:layout_marginBottom="@dimen/apao_space_md">
 
-        <View style="@style/SettingsDivider" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/apao_space_md">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/forgetButton"
+                    style="@style/Widget.ApaOltenia.Button.Outlined.Danger"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/forget_button" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- DESPRE -->
         <TextView
             style="@style/SettingsSectionHeader"
             android:text="@string/settings_about" />
 
-        <TextView
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.ApaOltenia.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/about_body"
-            android:textColor="?android:attr/textColorSecondary"
-            android:lineSpacingMultiplier="1.2"
-            android:autoLink="web|email"
-            android:textSize="14sp" />
+            android:layout_marginBottom="@dimen/apao_space_md">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/apao_space_md"
+                android:text="@string/about_body"
+                android:textColor="?android:attr/textColorSecondary"
+                android:lineSpacingMultiplier="1.2"
+                android:autoLink="web|email"
+                android:textSize="14sp" />
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
     </ScrollView>
