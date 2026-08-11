@@ -34,14 +34,16 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build (debug) + Lint
-        run: ./gradlew assembleDebug lintDebug --no-daemon
+      - name: Build (debug) + Lint + Teste unitare
+        run: ./gradlew assembleDebug lintDebug testDebugUnitTest --no-daemon
 
-      # Raportul lint, descarcabil cand verificarea pica.
-      - name: Upload lint report
+      # Rapoartele lint si teste, descarcabile cand verificarea pica.
+      - name: Upload reports
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: lint-report
-          path: app/build/reports/lint-results-debug.html
+          name: reports
+          path: |
+            app/build/reports/lint-results-debug.html
+            app/build/reports/tests/testDebugUnitTest/
           if-no-files-found: ignore

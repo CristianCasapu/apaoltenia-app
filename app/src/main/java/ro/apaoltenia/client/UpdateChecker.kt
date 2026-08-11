@@ -71,7 +71,7 @@ object UpdateChecker {
     }
 
     /** Compara versiuni de forma "1.2.3". true daca [candidate] > [current]. */
-    private fun isNewer(candidate: String, current: String): Boolean {
+    internal fun isNewer(candidate: String, current: String): Boolean {
         // Pastram doar prefixul numeric al fiecarui segment ("0-beta" -> 0).
         // mapNotNull ar fi ELIMINAT segmentul nenumeric, mutand restul pe
         // pozitii gresite (ex. "1.x.5" ar fi devenit [1, 5] = major.minor).

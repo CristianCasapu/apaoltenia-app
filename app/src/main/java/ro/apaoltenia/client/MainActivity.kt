@@ -402,7 +402,7 @@ class MainActivity : AppCompatActivity() {
      * elementul <style> daca exista deja (idempotent la reincarcari).
      */
     private fun injectCustomStyle(url: String) {
-        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        if (!isPortalUrl(url, PORTAL_DOMAIN)) return
         val b64 = android.util.Base64.encodeToString(
             portalCss.toByteArray(Charsets.UTF_8), android.util.Base64.NO_WRAP
         )
@@ -429,7 +429,7 @@ class MainActivity : AppCompatActivity() {
      * pagina e sus de tot. Idempotent: se instaleaza o singura data pe document.
      */
     private fun injectScrollHook(url: String) {
-        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        if (!isPortalUrl(url, PORTAL_DOMAIN)) return
         val js = """
             (function() {
               if (window.__apaoScrollHook) return;
@@ -467,7 +467,7 @@ class MainActivity : AppCompatActivity() {
      * printr-un MutationObserver + un interval de siguranta.
      */
     private fun injectChartFix(url: String) {
-        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        if (!isPortalUrl(url, PORTAL_DOMAIN)) return
         val js = """
             (function() {
               if (window.__apaoChartHook) return;
@@ -530,7 +530,7 @@ class MainActivity : AppCompatActivity() {
      *     Contact pentru modul intunecat.
      */
     private fun injectPortalEnhancements(url: String) {
-        if (!url.contains(PORTAL_DOMAIN, ignoreCase = true)) return
+        if (!isPortalUrl(url, PORTAL_DOMAIN)) return
         val dark = isDarkTheme()
         val js = """
             (function() {
@@ -711,8 +711,8 @@ class MainActivity : AppCompatActivity() {
      * password (inregistrarea are doua, recuperarea are zero).
      */
     private fun injectAutoFill(email: String, password: String) {
-        val safeEmail = jsEscape(email)
-        val safePassword = jsEscape(password)
+        val safeEmail = jsString(email)
+        val safePassword = jsString(password)
         val js = """
             (function() {
               function loginForm() {
@@ -732,9 +732,9 @@ class MainActivity : AppCompatActivity() {
               var user = form.querySelector('input[type=email]') ||
                          form.querySelector('input[type=text]') ||
                          form.querySelector('input:not([type=password]):not([type=hidden]):not([type=checkbox])');
-              if (user) { user.value = '$safeEmail';
+              if (user) { user.value = $safeEmail;
                           user.dispatchEvent(new Event('input',{bubbles:true})); }
-              if (pwd)  { pwd.value = '$safePassword';
+              if (pwd)  { pwd.value = $safePassword;
                           pwd.dispatchEvent(new Event('input',{bubbles:true})); }
             })();
         """.trimIndent()
@@ -867,14 +867,6 @@ class MainActivity : AppCompatActivity() {
                 .show()
         }
     }
-
-    private fun jsEscape(value: String): String =
-        value.replace("\\", "\\\\")
-            .replace("'", "\\'")
-            .replace("\n", "")
-            .replace("\r", "")
-            .replace("\u2028", "")
-            .replace("\u2029", "")
 
     companion object {
         private const val PORTAL_DOMAIN = "apaoltenia.ro"

@@ -77,6 +77,12 @@ android {
         viewBinding = true
         buildConfig = true
     }
+    testOptions {
+        unitTests {
+            // Nu avem nevoie de resurse Android in testele unitare pure.
+            isIncludeAndroidResources = false
+        }
+    }
 }
 
 dependencies {
@@ -97,4 +103,11 @@ dependencies {
     // Verificarea periodica a facturilor in fundal
     implementation("androidx.work:work-runtime-ktx:2.9.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    // Teste unitare (JVM pur, fara Robolectric). org.json din android.jar e
+    // doar "stub" in teste, asa ca aducem implementarea reala pe classpath-ul
+    // de test, altfel JSONObject/JSONTokener arunca "Stub!".
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 }

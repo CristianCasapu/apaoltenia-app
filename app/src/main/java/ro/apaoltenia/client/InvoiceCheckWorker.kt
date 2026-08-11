@@ -12,8 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import org.json.JSONTokener
-import java.security.MessageDigest
 import kotlin.coroutines.resume
 
 /**
@@ -58,10 +56,10 @@ class InvoiceCheckWorker(
         // Fara semnale de factura in pagina (aplicatia OpenUI5 nu a apucat sa
         // se randeze, ecran gol etc.): nu suprascriem amprenta buna anterioara
         // si nu notificam pe baza unei pagini goale.
-        val relevant = relevantOf(page.text)
+        val relevant = InvoiceSignature.relevantOf(page.text)
         if (relevant.isEmpty()) return Result.success()
 
-        val signature = sha256(relevant)
+        val signature = InvoiceSignature.sha256(relevant)
         val previous = prefs.lastInvoiceSignature
         prefs.lastInvoiceSignature = signature
 
@@ -140,8 +138,8 @@ class InvoiceCheckWorker(
                         attempts++
                         view.evaluateJavascript(EXTRACT_JS) { raw ->
                             if (resumed) return@evaluateJavascript
-                            val text = decodeJsString(raw)
-                            if (relevantOf(text).isNotEmpty() ||
+                            val text = InvoiceSignature.decodeJsString(raw)
+                            if (InvoiceSignature.relevantOf(text).isNotEmpty() ||
                                 attempts >= MAX_RENDER_POLLS
                             ) {
                                 finish(PageResult(view.url ?: url, text))
@@ -164,39 +162,11 @@ class InvoiceCheckWorker(
             web.loadUrl(MainActivity.APP_URL)
         }
 
-    /**
-     * Pastreaza doar semnalele relevante (sume in lei / cuvintele factura,
-     * sold, restant — cu sau fara diacritice), ca amprenta sa nu se schimbe
-     * de la elemente dinamice fara legatura.
-     */
-    private fun relevantOf(text: String): String =
-        SIGNAL_REGEX.findAll(text)
-            .joinToString("|") { it.value.trim().lowercase() }
-
-    private fun sha256(value: String): String =
-        MessageDigest.getInstance("SHA-256")
-            .digest(value.toByteArray())
-            .joinToString("") { "%02x".format(it) }
-
-    /**
-     * evaluateJavascript returneaza un literal JSON ("...cu \n, \" si \uXXXX").
-     * Il decodam cu parserul JSON, care trateaza corect toate escape-urile —
-     * inclusiv \uXXXX, forma in care sosesc diacriticele romanesti.
-     */
-    private fun decodeJsString(raw: String?): String {
-        if (raw == null || raw == "null") return ""
-        return runCatching { JSONTokener(raw).nextValue() as? String }
-            .getOrNull() ?: ""
-    }
-
     companion object {
         private const val PAGE_TIMEOUT_MS = 35_000L
         private const val RENDER_POLL_MS = 1_500L
         private const val MAX_RENDER_POLLS = 10
         private const val EXTRACT_JS =
             "(function(){return document.body?document.body.innerText:'';})();"
-        // \u0103 = "a" cu caciula; tinut ca escape ca sursa sa ramana ASCII.
-        private val SIGNAL_REGEX =
-            Regex("(?i)(factur[a\u0103]|sold|restant|\\d[\\d.,]*\\s*(lei|ron))")
     }
 }

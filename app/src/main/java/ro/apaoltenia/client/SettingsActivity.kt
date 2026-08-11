@@ -69,13 +69,18 @@ class SettingsActivity : AppCompatActivity() {
             else -> binding.themeSystem.isChecked = true
         }
         binding.themeGroup.setOnCheckedChangeListener { _, id ->
-            val mode = when (id) {
-                R.id.themeLight -> AppCompatDelegate.MODE_NIGHT_NO
-                R.id.themeDark -> AppCompatDelegate.MODE_NIGHT_YES
-                else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            }
+            val mode = themeModeFor(id)
             prefs.themeMode = mode
             AppPreferences.applyTheme(mode)
+        }
+    }
+
+    companion object {
+        /** Mapare id buton radio -> mod de tema AppCompat. Extras pentru testare. */
+        internal fun themeModeFor(checkedId: Int): Int = when (checkedId) {
+            R.id.themeLight -> AppCompatDelegate.MODE_NIGHT_NO
+            R.id.themeDark -> AppCompatDelegate.MODE_NIGHT_YES
+            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
     }
 
