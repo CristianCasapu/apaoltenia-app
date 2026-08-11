@@ -1,10 +1,16 @@
 name: Build & Release Android APK
 
-# Declansat la orice tag de forma v1.2.3
+# Declansat la orice tag de forma v1.2.3 sau manual (workflow_dispatch),
+# caz in care tag-ul e creat de release chiar pe commit-ul curent din main.
 on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versiunea de publicat (ex. 1.6.0), fara prefixul v'
+        required: true
 
 # GITHUB_TOKEN trebuie sa poata crea release-uri
 permissions:
@@ -36,12 +42,17 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > apaoltenia.jks
 
-      # ── 5. Extrage versiunea din tag (v1.2.3 → 1.2.3) ─────────────
+      # ── 5. Extrage versiunea din tag (v1.2.3 → 1.2.3) sau din input ─
       - name: Extract version from tag
         id: version
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          VER="${TAG#v}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VER="${{ github.event.inputs.version }}"
+            TAG="v$VER"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+            VER="${TAG#v}"
+          fi
           echo "TAG=$TAG"     >> $GITHUB_OUTPUT
           echo "VERSION=$VER" >> $GITHUB_OUTPUT
 
@@ -112,6 +123,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.TAG }}
+          # La workflow_dispatch tag-ul nu exista inca: release-ul il creeaza
+          # chiar pe commit-ul din care ruleaza. La push de tag e ignorat.
+          target_commitish: ${{ github.sha }}
           name: "ApaOltenia Client v${{ steps.version.outputs.VERSION }}"
           body_path: release_notes.md
           files: "ApaOltenia-v${{ steps.version.outputs.VERSION }}.apk"
