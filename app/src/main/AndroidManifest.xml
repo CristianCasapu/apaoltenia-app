@@ -42,7 +42,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="ro.apaoltenia.client.fileProvider"
+            android:authorities="${applicationId}.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

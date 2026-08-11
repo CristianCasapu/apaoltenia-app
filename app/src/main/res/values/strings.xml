@@ -64,6 +64,8 @@
     <string name="update_download_failed">Descarcarea actualizarii a esuat. Verifica conexiunea si incearca din nou.</string>
     <string name="update_up_to_date">Ai deja cea mai noua versiune.</string>
     <string name="update_check_failed">Nu am putut verifica actualizarile. Incearca mai tarziu.</string>
+    <string name="update_needs_install_permission">Pentru a instala actualizarea direct din aplicatie, permite instalarea aplicatiilor necunoscute din setarile telefonului.</string>
+    <string name="update_open_settings">Deschide setarile</string>
 
     <!-- Date salvate -->
     <string name="credentials_invalidated">Datele de conectare salvate nu au mai putut fi citite (metoda de deblocare a telefonului s-a schimbat). Autentifica-te din nou ca sa le salvezi.</string>

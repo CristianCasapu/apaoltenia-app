@@ -13,7 +13,13 @@ import java.net.URL
  */
 object UpdateChecker {
 
-    data class Update(val version: String, val downloadUrl: String, val pageUrl: String)
+    data class Update(
+        val version: String,
+        val downloadUrl: String,
+        val pageUrl: String,
+        /** SHA-256 (hex) al APK-ului, din campul `digest` al asset-ului. Optional. */
+        val sha256: String? = null
+    )
 
     /**
      * Rezultatul verificarii: existenta unei versiuni noi, "esti la zi" sau
@@ -32,24 +38,45 @@ object UpdateChecker {
     /** Verifica ultimul release publicat si compara cu versiunea curenta. */
     suspend fun check(currentVersion: String): CheckResult = withContext(Dispatchers.IO) {
         val json = fetch(API) ?: return@withContext CheckResult.Failed
+        // Parsarea e izolata si prinsa: un raspuns 200 non-JSON (portal captiv,
+        // proxy corporate) nu mai propaga o exceptie care ar crapa aplicatia la
+        // pornire — exact pe retelele unde e mai probabil sa deschizi aplicatia.
+        runCatching { parseLatest(json, currentVersion) }.getOrDefault(CheckResult.Failed)
+    }
+
+    /** Pur (fara retea) ca sa fie testabil: interpreteaza raspunsul GitHub. */
+    internal fun parseLatest(json: String, currentVersion: String): CheckResult {
         val obj = JSONObject(json)
         val tag = obj.optString("tag_name").removePrefix("v")
-        if (tag.isBlank() || !isNewer(tag, currentVersion)) {
-            return@withContext CheckResult.UpToDate
-        }
+        if (tag.isBlank() || !isNewer(tag, currentVersion)) return CheckResult.UpToDate
 
         val pageUrl = obj.optString("html_url")
         val assets = obj.optJSONArray("assets")
-        var apk = pageUrl
         if (assets != null) {
             for (i in 0 until assets.length()) {
                 val a = assets.getJSONObject(i)
-                if (a.optString("name").endsWith(".apk", ignoreCase = true)) {
-                    apk = a.optString("browser_download_url"); break
+                val name = a.optString("name")
+                val url = a.optString("browser_download_url")
+                if (name.endsWith(".apk", ignoreCase = true) && isTrustedAssetUrl(url)) {
+                    val sha = a.optString("digest")
+                        .removePrefix("sha256:").lowercase()
+                        .takeIf { it.length == 64 && it.all { c -> c.isDigit() || c in 'a'..'f' } }
+                    return CheckResult.Available(Update(tag, url, pageUrl, sha))
                 }
             }
         }
-        CheckResult.Available(Update(tag, apk, pageUrl))
+        // Fara asset APK de incredere: deschidem pagina release-ului in browser.
+        return CheckResult.Available(Update(tag, pageUrl, pageUrl))
+    }
+
+    /** Doar https catre GitHub / storage-ul lui de release assets. */
+    internal fun isTrustedAssetUrl(url: String): Boolean {
+        val u = runCatching { java.net.URI(url) }.getOrNull() ?: return false
+        if (!u.scheme.equals("https", ignoreCase = true)) return false
+        val host = u.host?.lowercase() ?: return false
+        return host == "github.com" ||
+            host == "objects.githubusercontent.com" ||
+            host.endsWith(".githubusercontent.com")
     }
 
     private fun fetch(url: String): String? {

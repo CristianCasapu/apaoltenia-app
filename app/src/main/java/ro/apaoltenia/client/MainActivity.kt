@@ -672,7 +672,11 @@ class MainActivity : AppCompatActivity() {
             .setView(container)
             .setCancelable(false)
             .setPositiveButton(R.string.delete_confirm_yes) { _, _ ->
-                if (input.text.toString() == stored) {
+                // Comparatie in timp constant, ca sa nu existe un oracol de timing.
+                val ok = java.security.MessageDigest.isEqual(
+                    input.text.toString().toByteArray(), stored.toByteArray()
+                )
+                if (ok) {
                     binding.webView.evaluateJavascript("window.__apaoDoDelete && window.__apaoDoDelete();", null)
                 } else {
                     Toast.makeText(this, R.string.delete_wrong_password, Toast.LENGTH_SHORT).show()

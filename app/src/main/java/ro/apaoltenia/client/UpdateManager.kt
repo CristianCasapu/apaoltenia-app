@@ -1,14 +1,14 @@
 package ro.apaoltenia.client
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,6 +16,8 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.security.DigestInputStream
+import java.security.MessageDigest
 
 /**
  * Descarca APK-ul unei versiuni noi si porneste instalarea, totul din
@@ -33,7 +35,7 @@ object UpdateManager {
      * versiune la fiecare deschidere.
      */
     fun promptAndInstall(
-        activity: Activity,
+        activity: ComponentActivity,
         update: UpdateChecker.Update,
         onLater: (() -> Unit)? = null
     ) {
@@ -47,12 +49,33 @@ object UpdateManager {
             .show()
     }
 
-    private fun downloadAndInstall(activity: Activity, update: UpdateChecker.Update) {
+    private fun downloadAndInstall(activity: ComponentActivity, update: UpdateChecker.Update) {
         // Fara asset APK in release (caz teoretic) — deschidem pagina in browser.
         if (!update.downloadUrl.endsWith(".apk", ignoreCase = true)) {
             runCatching {
                 activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(update.pageUrl)))
             }
+            return
+        }
+
+        // Fara permisiunea "instaleaza aplicatii necunoscute", descarcarea ar
+        // duce la un zid opac al sistemului. Il rugam intai sa o acorde.
+        if (!activity.packageManager.canRequestPackageInstalls()) {
+            AlertDialog.Builder(activity)
+                .setTitle(R.string.update_available_title)
+                .setMessage(R.string.update_needs_install_permission)
+                .setPositiveButton(R.string.update_open_settings) { _, _ ->
+                    runCatching {
+                        activity.startActivity(
+                            Intent(
+                                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                                Uri.parse("package:${activity.packageName}")
+                            )
+                        )
+                    }
+                }
+                .setNegativeButton(R.string.save_no, null)
+                .show()
             return
         }
 
@@ -67,7 +90,7 @@ object UpdateManager {
             .setCancelable(false)
             .show()
 
-        (activity as LifecycleOwner).lifecycleScope.launch {
+        activity.lifecycleScope.launch {
             val apk = download(activity, update) { percent ->
                 if (percent < 0) {
                     progressBar.isIndeterminate = true
@@ -89,7 +112,7 @@ object UpdateManager {
     }
 
     private suspend fun download(
-        activity: Activity,
+        activity: ComponentActivity,
         update: UpdateChecker.Update,
         onProgress: (Int) -> Unit
     ): File? = withContext(Dispatchers.IO) {
@@ -109,7 +132,8 @@ object UpdateManager {
 
             val total = conn.contentLengthLong
             var copied = 0L
-            conn.inputStream.use { input ->
+            val digest = MessageDigest.getInstance("SHA-256")
+            DigestInputStream(conn.inputStream, digest).use { input ->
                 target.outputStream().use { output ->
                     val buffer = ByteArray(64 * 1024)
                     var lastPercent = -1
@@ -126,9 +150,11 @@ object UpdateManager {
                     }
                 }
             }
-            // Conexiune intrerupta la mijloc: fisierul partial ar ajunge la
-            // instalator si ar esua cu "problema la parsarea pachetului".
-            if (copied == 0L || (total > 0 && copied != total)) {
+            val actualSha = digest.digest().joinToString("") { "%02x".format(it) }
+            // Fisier trunchiat sau cu alta amprenta decat cea anuntata de GitHub
+            // nu ajunge la instalator (ar esua cu "problema la parsarea pachetului"
+            // sau ar fi un APK strain). Lenient cand release-ul nu are digest.
+            if (!isDownloadValid(copied, total, actualSha, update.sha256)) {
                 target.delete()
                 return@withContext null
             }
@@ -140,7 +166,21 @@ object UpdateManager {
         }
     }
 
-    private fun install(activity: Activity, apk: File) {
+    /**
+     * Pur (testabil): descarcarea e valida daca s-a copiat ceva, lungimea
+     * coincide cu cea anuntata (cand e cunoscuta) si — daca release-ul a dat un
+     * digest — amprenta SHA-256 se potriveste.
+     */
+    internal fun isDownloadValid(
+        copied: Long, total: Long, actualSha: String?, expectedSha: String?
+    ): Boolean {
+        if (copied == 0L) return false
+        if (total > 0 && copied != total) return false
+        if (expectedSha != null && !expectedSha.equals(actualSha, ignoreCase = true)) return false
+        return true
+    }
+
+    private fun install(activity: ComponentActivity, apk: File) {
         val uri = FileProvider.getUriForFile(
             activity, "${BuildConfig.APPLICATION_ID}.fileProvider", apk
         )
