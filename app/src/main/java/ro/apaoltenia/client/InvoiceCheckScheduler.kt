@@ -22,9 +22,12 @@ object InvoiceCheckScheduler {
             .setConstraints(constraints)
             .build()
 
+        // UPDATE (nu KEEP): schimbarile viitoare de interval/constrangeri se
+        // aplica si instalarilor existente, iar re-armarea din App.onCreate e
+        // sigura (nu reseteaza perioada).
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             request
         )
     }

@@ -158,9 +158,7 @@ class SettingsActivity : AppCompatActivity() {
                 .setTitle(R.string.forget_title)
                 .setMessage(R.string.forget_message)
                 .setPositiveButton(R.string.forget_yes) { _, _ ->
-                    CredentialStore(this).clear()
-                    prefs.invoiceNotificationsEnabled = false
-                    InvoiceCheckScheduler.disable(this)
+                    wipeLocalData(this)
                     setNotifySwitch(false)
                     finish()
                 }

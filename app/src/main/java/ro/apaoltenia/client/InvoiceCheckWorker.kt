@@ -41,7 +41,10 @@ class InvoiceCheckWorker(
 
         val page = withContext(Dispatchers.Main) {
             withTimeoutOrNull(PAGE_TIMEOUT_MS) { loadPortalPage() }
-        } ?: return Result.retry()
+        } ?: run {
+            recordOutcome(prefs, Outcome.ERROR)
+            return Result.retry()
+        }
 
         // Sesiune expirata: portalul ne-a redirectionat la login. Nu putem
         // trece de Turnstile in fundal, deci asteptam urmatoarea logare
@@ -50,6 +53,7 @@ class InvoiceCheckWorker(
         if (page.url.contains("login.jsp", ignoreCase = true) ||
             page.text.contains("Turnstile", ignoreCase = true)
         ) {
+            recordOutcome(prefs, Outcome.SESSION_EXPIRED)
             return Result.success()
         }
 
@@ -57,17 +61,30 @@ class InvoiceCheckWorker(
         // se randeze, ecran gol etc.): nu suprascriem amprenta buna anterioara
         // si nu notificam pe baza unei pagini goale.
         val relevant = InvoiceSignature.relevantOf(page.text)
-        if (relevant.isEmpty()) return Result.success()
+        if (relevant.isEmpty()) {
+            recordOutcome(prefs, Outcome.NO_DATA)
+            return Result.success()
+        }
 
         val signature = InvoiceSignature.sha256(relevant)
         val previous = prefs.lastInvoiceSignature
         prefs.lastInvoiceSignature = signature
 
         // La prima rulare doar memoram amprenta, fara sa alarmam.
-        if (previous != null && previous != signature) {
+        val changed = previous != null && previous != signature
+        if (changed) {
             NotificationHelper.showNewInvoice(applicationContext)
         }
+        recordOutcome(prefs, if (changed) Outcome.NEW_INVOICE else Outcome.OK)
         return Result.success()
+    }
+
+    /** Rezultatul ultimei verificari, pentru afisare in Setari / verificare manuala. */
+    enum class Outcome { OK, NEW_INVOICE, SESSION_EXPIRED, NO_DATA, ERROR }
+
+    private fun recordOutcome(prefs: AppPreferences, outcome: Outcome) {
+        prefs.lastInvoiceCheckOutcome = outcome.name
+        prefs.lastInvoiceCheckAt = System.currentTimeMillis()
     }
 
     /**

@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.forget_title)
             .setMessage(R.string.forget_message)
             .setPositiveButton(R.string.forget_yes) { _, _ ->
-                store.clear()
+                wipeLocalData(this)
                 autoLoginArmed = false
                 openPortal()
             }
