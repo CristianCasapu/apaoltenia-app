@@ -10,6 +10,18 @@ object Changelog {
 
     val entries: List<Entry> = listOf(
         Entry(
+            "1.7.0", "11.08.2026", listOf(
+                "Descarcarea facturilor PDF functioneaza (era ignorata pana acum)",
+                "Buton nou in Setari: verifica facturile acum, cu rezultatul ultimei verificari",
+                "Ecran de pornire (splash) cu sigla aplicatiei",
+                "Actualizari mai sigure: se verifica integritatea (SHA-256) si sursa fisierului",
+                "Pornire mai sigura: aplicatia nu se mai inchide pe retele cu portal captiv",
+                "Verificarea facturilor se reactiveaza singura daca sistemul o oprea",
+                "Injectarea in pagina se face doar pe adresa reala a portalului",
+                "Prima suita de teste automate, rulate la fiecare modificare"
+            )
+        ),
+        Entry(
             "1.6.0", "10.08.2026", listOf(
                 "Logo nou: picatura in spatiu negativ pe disc cu gradient — pe iconita, notificari si ecranul de deblocare",
                 "Iconita tematica pentru Android 13+ (Material You)",
