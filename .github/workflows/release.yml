@@ -74,24 +74,46 @@ jobs:
           mv app/build/outputs/apk/release/app-release.apk \
              "ApaOltenia-v${{ steps.version.outputs.VERSION }}.apk"
 
+      # ── 7b. Notele de release, generate din Changelog.kt ───────────
+      # Changelog-ul din aplicatie e sursa unica de adevar pentru noutati;
+      # extragem cea mai noua intrare si o punem in corpul release-ului.
+      # Daca versiunea din changelog nu coincide cu tag-ul, oprim publicarea
+      # (inseamna ca s-a uitat actualizarea changelog-ului).
+      - name: Generate release notes from changelog
+        run: |
+          python3 - "${{ steps.version.outputs.VERSION }}" <<'EOF'
+          import re, sys
+          tag_version = sys.argv[1]
+          src = open('app/src/main/java/ro/apaoltenia/client/Changelog.kt', encoding='utf-8').read()
+          m = re.search(r'Entry\(\s*"([^"]+)",\s*"([^"]+)",\s*listOf\((.*?)\)\s*\)', src, re.S)
+          if not m:
+              sys.exit('::error::Nu am gasit nicio intrare in Changelog.kt')
+          version, date, body = m.group(1), m.group(2), m.group(3)
+          if version != tag_version:
+              sys.exit(f'::error::Tag {tag_version} != versiunea {version} din Changelog.kt — actualizeaza changelog-ul')
+          items = [i.replace('\\"', '"') for i in re.findall(r'"((?:[^"\\]|\\.)*)"', body)]
+          with open('release_notes.md', 'w', encoding='utf-8') as f:
+              f.write(f'## ApaOltenia Client v{version} ({date})\n\n')
+              f.write('### Noutati\n')
+              for it in items:
+                  f.write(f'- {it}\n')
+              f.write('\n### Actualizare din aplicatie (recomandat)\n')
+              f.write('Daca ai deja o versiune instalata, aplicatia verifica automat la\n')
+              f.write('pornire si iti propune sa **descarce si sa instaleze** noua versiune\n')
+              f.write('direct din aplicatie — nu mai e nevoie sa vii aici manual.\n')
+              f.write('\n### Instalare manuala (prima instalare)\n')
+              f.write('1. Descarca fisierul `.apk` de mai jos\n')
+              f.write('2. Pe telefon: **Setari → Securitate → Instalare aplicatii necunoscute**\n')
+              f.write('3. Deschide fisierul si instaleaza\n')
+          EOF
+
       # ── 8. Creeaza GitHub Release cu APK-ul ────────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.TAG }}
           name: "ApaOltenia Client v${{ steps.version.outputs.VERSION }}"
-          body: |
-            ## ApaOltenia Client v${{ steps.version.outputs.VERSION }}
-
-            ### Actualizare din aplicatie (recomandat)
-            Daca ai deja o versiune instalata, aplicatia verifica automat la
-            pornire si iti propune sa **descarce si sa instaleze** noua versiune
-            direct din aplicatie — nu mai e nevoie sa vii aici manual.
-
-            ### Instalare manuala (prima instalare)
-            1. Descarca fisierul `.apk` de mai jos
-            2. Pe telefon: **Setari → Securitate → Instalare aplicatii necunoscute**
-            3. Deschide fisierul si instaleaza
+          body_path: release_notes.md
           files: "ApaOltenia-v${{ steps.version.outputs.VERSION }}.apk"
           draft: false
           prerelease: false
