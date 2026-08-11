@@ -1,7 +1,7 @@
 # ApaOltenia Client (Android)
 
 Aplicatie Android **neoficiala** care incapsuleaza portalul
-`https://clienti.apaoltenia.ro/self_utilities/login.jsp` intr-un WebView si
+`https://clienti.apaoltenia.ro/self_utilities/` intr-un WebView si
 adauga **deblocare cu metoda dispozitivului** (amprenta, fata, model sau PIN),
 **temă luminoasă/întunecată** si **notificari pentru facturi noi**.
 

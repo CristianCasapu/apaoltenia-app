@@ -920,6 +920,9 @@ class MainActivity : AppCompatActivity() {
         // redirectioneaza singur la pagina de login (login.jsp).
         // Ne-privat: InvoiceCheckWorker trebuie sa incarce exact aceeasi
         // pagina, ca amprenta facturilor sa fie calculata pe aplicatia reala.
+        // Nota: slash-ul dublu (self_utilities//oui) e pastrat intentionat —
+        // e URL-ul care functioneaza in productie; normalizarea lui nu poate fi
+        // verificata fara dispozitiv, deci nu o riscam.
         const val APP_URL =
             "https://clienti.apaoltenia.ro/self_utilities//oui/cl/index.html"
     }
