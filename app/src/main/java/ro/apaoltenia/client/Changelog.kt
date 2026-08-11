@@ -10,6 +10,16 @@ object Changelog {
 
     val entries: List<Entry> = listOf(
         Entry(
+            "1.8.0", "11.08.2026", listOf(
+                "Aspect modernizat in toata aplicatia: butoane si dialoguri unitare, in stil Material 3",
+                "Ecranul de Setari reorganizat pe carduri, mai usor de citit",
+                "Portalul web restilizat in spirit Bootstrap 5: butoane, campuri, carduri si taburi unitare",
+                "Inel de focus vizibil la navigarea cu tastatura in portal",
+                "Bara de progres moderna la descarcarea actualizarilor",
+                "Campul de parola de la stergerea contului are buton de afisare a parolei"
+            )
+        ),
+        Entry(
             "1.7.0", "11.08.2026", listOf(
                 "Descarcarea facturilor PDF functioneaza (era ignorata pana acum)",
                 "Buton nou in Setari: verifica facturile acum, cu rezultatul ultimei verificari",
