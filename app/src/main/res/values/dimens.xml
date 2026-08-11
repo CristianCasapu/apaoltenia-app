@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tokeni de spatiere si rotunjire, folositi in layouturi si stiluri. -->
+<resources>
+    <dimen name="apao_space_xs">4dp</dimen>
+    <dimen name="apao_space_sm">8dp</dimen>
+    <dimen name="apao_space_md">16dp</dimen>
+    <dimen name="apao_space_lg">24dp</dimen>
+    <dimen name="apao_corner_sm">8dp</dimen>
+    <dimen name="apao_corner_md">12dp</dimen>
+    <dimen name="apao_touch_target">48dp</dimen>
+</resources>

@@ -3,8 +3,8 @@
     <style name="SettingsSectionHeader" parent="TextAppearance.Material3.TitleSmall">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:layout_marginTop">@dimen/apao_space_sm</item>
+        <item name="android:layout_marginBottom">@dimen/apao_space_sm</item>
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:textAllCaps">true</item>
     </style>
@@ -17,11 +17,38 @@
         <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.Dark</item>
     </style>
 
-    <style name="SettingsDivider">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:layout_marginTop">20dp</item>
-        <item name="android:layout_marginBottom">12dp</item>
-        <item name="android:background">?attr/colorOutlineVariant</item>
+    <!-- Sistemul de butoane al aplicatiei: colturi mai discrete decat pill-ul
+         Material 3 implicit si inaltime minima de atingere unitara. -->
+    <style name="Widget.ApaOltenia.Button" parent="Widget.Material3.Button">
+        <item name="cornerRadius">@dimen/apao_corner_sm</item>
+        <item name="android:minHeight">@dimen/apao_touch_target</item>
+    </style>
+
+    <style name="Widget.ApaOltenia.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="cornerRadius">@dimen/apao_corner_sm</item>
+        <item name="android:minHeight">@dimen/apao_touch_target</item>
+    </style>
+
+    <style name="Widget.ApaOltenia.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">@dimen/apao_corner_sm</item>
+        <item name="android:minHeight">@dimen/apao_touch_target</item>
+    </style>
+
+    <!-- Varianta pentru actiuni distructive (echivalentul btn-outline-danger). -->
+    <style name="Widget.ApaOltenia.Button.Outlined.Danger">
+        <item name="strokeColor">?attr/colorError</item>
+        <item name="android:textColor">?attr/colorError</item>
+        <item name="iconTint">?attr/colorError</item>
+        <item name="rippleColor">?attr/colorError</item>
+    </style>
+
+    <style name="Widget.ApaOltenia.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="cornerRadius">@dimen/apao_corner_sm</item>
+        <item name="android:minHeight">@dimen/apao_touch_target</item>
+    </style>
+
+    <!-- Card de sectiune in Setari. -->
+    <style name="Widget.ApaOltenia.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/apao_corner_md</item>
     </style>
 </resources>

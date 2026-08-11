@@ -4,11 +4,12 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.view.LayoutInflater
-import android.widget.ProgressBar
+import android.view.View
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,7 +40,7 @@ object UpdateManager {
         update: UpdateChecker.Update,
         onLater: (() -> Unit)? = null
     ) {
-        AlertDialog.Builder(activity)
+        MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.update_available_title)
             .setMessage(activity.getString(R.string.update_available_message, update.version))
             .setPositiveButton(R.string.update_install) { _, _ ->
@@ -61,7 +62,7 @@ object UpdateManager {
         // Fara permisiunea "instaleaza aplicatii necunoscute", descarcarea ar
         // duce la un zid opac al sistemului. Il rugam intai sa o acorde.
         if (!activity.packageManager.canRequestPackageInstalls()) {
-            AlertDialog.Builder(activity)
+            MaterialAlertDialogBuilder(activity)
                 .setTitle(R.string.update_available_title)
                 .setMessage(R.string.update_needs_install_permission)
                 .setPositiveButton(R.string.update_open_settings) { _, _ ->
@@ -80,11 +81,11 @@ object UpdateManager {
         }
 
         val view = LayoutInflater.from(activity).inflate(R.layout.dialog_progress, null)
-        val progressBar = view.findViewById<ProgressBar>(R.id.downloadProgress)
+        val progressBar = view.findViewById<LinearProgressIndicator>(R.id.downloadProgress)
         val label = view.findViewById<TextView>(R.id.downloadLabel)
         label.text = activity.getString(R.string.update_downloading)
 
-        val dialog = AlertDialog.Builder(activity)
+        val dialog = MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.update_available_title)
             .setView(view)
             .setCancelable(false)
@@ -92,16 +93,21 @@ object UpdateManager {
 
         activity.lifecycleScope.launch {
             val apk = download(activity, update) { percent ->
-                if (percent < 0) {
-                    progressBar.isIndeterminate = true
-                } else {
-                    progressBar.isIndeterminate = false
+                // LinearProgressIndicator nu accepta schimbarea isIndeterminate
+                // cat timp e vizibil — il ascundem pe durata comutarii.
+                val wantIndeterminate = percent < 0
+                if (progressBar.isIndeterminate != wantIndeterminate) {
+                    progressBar.visibility = View.INVISIBLE
+                    progressBar.isIndeterminate = wantIndeterminate
+                    progressBar.visibility = View.VISIBLE
+                }
+                if (!wantIndeterminate) {
                     progressBar.progress = percent
                 }
             }
             dialog.dismiss()
             if (apk == null) {
-                AlertDialog.Builder(activity)
+                MaterialAlertDialogBuilder(activity)
                     .setMessage(R.string.update_download_failed)
                     .setPositiveButton(android.R.string.ok, null)
                     .show()
@@ -193,7 +199,7 @@ object UpdateManager {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             })
         }.onFailure {
-            AlertDialog.Builder(activity)
+            MaterialAlertDialogBuilder(activity)
                 .setMessage(R.string.update_download_failed)
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
