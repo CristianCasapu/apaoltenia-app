@@ -188,6 +188,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/apao_space_xs"
                     android:text="@string/settings_changelog_button" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/shareButton"
+                    style="@style/Widget.ApaOltenia.Button.Text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_share_button"
+                    app:icon="@drawable/ic_share" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

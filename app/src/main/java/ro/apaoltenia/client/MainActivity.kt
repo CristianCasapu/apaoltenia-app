@@ -123,6 +123,9 @@ class MainActivity : AppCompatActivity() {
             R.id.action_reload -> {
                 binding.webView.reload(); true
             }
+            R.id.action_share -> {
+                AppShare.share(this); true
+            }
             R.id.action_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java)); true
             }
@@ -673,7 +676,17 @@ class MainActivity : AppCompatActivity() {
                 } catch (e) {}
               }
 
-              function tick() { if (document.hidden) return; addA11yItem(); hideFloating(); deleteGuard(); styleEditorFrame(); }
+              // Pasul 2FA (verifyCode.jsp): tastatura numerica si focus pe cod,
+              // ca utilizatorul sa lipeasca direct codul primit pe email.
+              function prepCode2FA() {
+                var c = document.getElementById('cod2FA');
+                if (!c || c.__apao) return;
+                c.__apao = true;
+                c.setAttribute('inputmode', 'numeric');
+                c.setAttribute('autocomplete', 'one-time-code');
+                c.focus();
+              }
+              function tick() { if (document.hidden) return; addA11yItem(); hideFloating(); deleteGuard(); styleEditorFrame(); prepCode2FA(); }
               try { new MutationObserver(tick).observe(document.body, { childList: true, subtree: true }); } catch (e) {}
               setInterval(tick, 700);
               tick();

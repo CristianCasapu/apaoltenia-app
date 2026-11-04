@@ -10,6 +10,14 @@ object Changelog {
 
     val entries: List<Entry> = listOf(
         Entry(
+            "1.9.0", "04.11.2026", listOf(
+                "Trimite aplicatia cuiva direct din aplicatie (WhatsApp, Messenger, SMS, email), cu link la ultima versiune",
+                "Pagina de login adaptata la noul portal: textul din campuri nu se mai suprapune, iconita parolei e in camp, titlul e centrat",
+                "Suport pentru pasul nou de verificare cu cod pe email (2FA): tastatura numerica si campul gata de completat",
+                "Reincarca si Trimite aplicatia au trecut in meniul cu trei puncte, ca titlul sa incapa in bara"
+            )
+        ),
+        Entry(
             "1.8.0", "11.08.2026", listOf(
                 "Aspect modernizat in toata aplicatia: butoane si dialoguri unitare, in stil Material 3",
                 "Ecranul de Setari reorganizat pe carduri, mai usor de citit",
