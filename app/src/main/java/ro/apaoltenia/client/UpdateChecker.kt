@@ -32,8 +32,10 @@ object UpdateChecker {
         data object Failed : CheckResult()
     }
 
-    private const val API =
-        "https://api.github.com/repos/CristianCasapu/apaoltenia-app/releases/latest"
+    /** Repo-ul public din care vin release-urile (folosit si la share). */
+    const val REPO = "CristianCasapu/apaoltenia-app"
+
+    private const val API = "https://api.github.com/repos/$REPO/releases/latest"
 
     /** Verifica ultimul release publicat si compara cu versiunea curenta. */
     suspend fun check(currentVersion: String): CheckResult = withContext(Dispatchers.IO) {

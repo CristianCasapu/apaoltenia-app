@@ -30,6 +30,13 @@
     <!-- Meniu -->
     <string name="menu_reload">Reincarca</string>
     <string name="menu_settings">Setari</string>
+    <string name="menu_share">Trimite aplicatia</string>
+    <string name="settings_share_button">Trimite aplicatia cuiva</string>
+    <string name="share_subject">ApaOltenia Client pentru Android</string>
+    <string name="share_chooser_title">Trimite linkul prin</string>
+    <string name="share_message">Iti recomand ApaOltenia Client, aplicatia Android (neoficiala) pentru portalul clientilor Apa Oltenia: facturi, notificari la facturi noi si deblocare cu amprenta.
+
+Descarca ultima versiune: %1$s</string>
 
     <!-- Setari -->
     <string name="settings_title">Setari</string>

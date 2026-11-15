@@ -181,6 +181,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.changelogButton.setOnClickListener {
             startActivity(Intent(this, ChangelogActivity::class.java))
         }
+        binding.shareButton.setOnClickListener { AppShare.share(this) }
         binding.checkUpdatesButton.setOnClickListener {
             binding.checkUpdatesButton.isEnabled = false
             toast(getString(R.string.update_checking))

@@ -274,6 +274,84 @@ html .face .content .field-wrapper label {
   color: var(--apao-text-muted) !important;
 }
 
+/* Eticheta plutitoare a portalului (placeholder-ul real e ascuns cu opacity 0):
+   portalul o lipea de marginea stanga. In stil "outlined": in repaus sta in
+   camp, aliniata cu textul; la focus sau cand campul e completat urca pe
+   marginea campului. */
+html .face .content .field-wrapper > label {
+  left: 15px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+  transition: top 0.18s ease, font-size 0.18s ease, color 0.18s ease !important;
+}
+html .face .content .field-wrapper input:focus + label,
+html .face .content .field-wrapper input:not(:placeholder-shown) + label,
+html .face .content .field-wrapper textarea:focus + label,
+html .face .content .field-wrapper textarea:not(:placeholder-shown) + label {
+  top: 0 !important;
+  left: 10px !important;
+  font-size: 12px !important;
+  padding: 0 4px !important;
+  background: var(--apao-surface) !important;
+  border-radius: 4px !important;
+}
+html .face .content .field-wrapper input:focus + label,
+html .face .content .field-wrapper textarea:focus + label {
+  color: var(--apao-primary) !important;
+}
+/* Campurile fara placeholder (ex. codul 2FA de pe verifyCode.jsp): eticheta
+   devine un titlu static deasupra campului, ca textul lung sa nu se suprapuna. */
+html .face .content .field-wrapper:has(> input:not([placeholder]) + label) {
+  display: flex !important;
+  flex-direction: column-reverse !important;
+}
+html .face .content .field-wrapper > input:not([placeholder]) + label {
+  position: static !important;
+  transform: none !important;
+  margin: 0 0 8px 2px !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  background: transparent !important;
+}
+
+/* Parola cu iconita "arata parola": portalul ingusteaza campul la 94% si pune
+   ochiul alaturi. Il mutam in interiorul campului, aliniat la dreapta. */
+html .face .content .field-wrapper input.passWithIcon {
+  width: 100% !important;
+  padding-right: 48px !important;
+}
+html .face .content .field-wrapper .div-eye {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+html .face .content .field-wrapper .div-eye .toggle-icon {
+  position: static !important;
+  transform: none !important;
+  font-size: 18px !important;
+}
+
+/* Antetul cardului: portalul pune titlul si sigla pe un rand (flex) cu latimi
+   fixe; sigla e ascunsa, deci centram titlul si marca aplicatiei sub el. */
+html .face .titluLogin {
+  display: block !important;
+  text-align: center !important;
+}
+html .face .titluLogin h2 {
+  width: auto !important;
+}
+html .face .logoFirma {
+  display: none !important;
+}
+
 /* ============================================================
    2. APLICATIA LOGATA (OpenUI5, /oui/)
    ============================================================ */
