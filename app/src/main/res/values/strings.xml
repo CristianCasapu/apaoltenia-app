@@ -99,5 +99,7 @@ Descarca ultima versiune: %1$s</string>
     <string name="notif_channel_desc">Anunt cand apare o factura noua in portalul ApaOltenia.</string>
     <string name="notif_invoice_title">Factura noua ApaOltenia</string>
     <string name="notif_invoice_body">A aparut o factura noua in contul tau. Atinge pentru a o deschide.</string>
+    <string name="notif_invoice_body_one">Factura noua de %1$s lei in contul tau. Atinge pentru a o deschide.</string>
+    <string name="notif_invoice_body_many">%1$d facturi noi, in total %2$s lei. Atinge pentru a le deschide.</string>
     <string name="notif_permission_denied">Fara permisiunea de notificari nu te pot anunta despre facturi noi.</string>
 </resources>

@@ -10,6 +10,14 @@ object Changelog {
 
     val entries: List<Entry> = listOf(
         Entry(
+            "1.10.0", "26.11.2026", listOf(
+                "Verificarea facturilor din fundal foloseste direct datele portalului: mai rapida si mai putin consum de baterie",
+                "Notificarea arata valoarea facturii noi (sau cate facturi noi si totalul lor)",
+                "Daca portalul raspunde neasteptat, verificarea revine automat la metoda veche",
+                "La stergerea datelor salvate se reseteaza si starea facturilor, fara alerte false la alt cont"
+            )
+        ),
+        Entry(
             "1.9.0", "04.11.2026", listOf(
                 "Trimite aplicatia cuiva direct din aplicatie (WhatsApp, Messenger, SMS, email), cu link la ultima versiune",
                 "Pagina de login adaptata la noul portal: textul din campuri nu se mai suprapune, iconita parolei e in camp, titlul e centrat",

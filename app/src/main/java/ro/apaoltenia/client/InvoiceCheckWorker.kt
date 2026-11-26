@@ -4,6 +4,7 @@ import android.content.Context
 import android.webkit.CookieManager
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.work.CoroutineWorker
@@ -21,11 +22,17 @@ import kotlin.coroutines.resume
  * Portalul ApaOltenia protejeaza autentificarea cu Cloudflare Turnstile
  * (anti-bot), deci NU putem re-loga automat in fundal fara interventia
  * utilizatorului. In schimb, reutilizam sesiunea (cookie-urile) pastrata de
- * WebView dupa ce te-ai autentificat in aplicatie. Cat timp sesiunea e activa,
- * incarcam pagina de facturi intr-un WebView invizibil, extragem o "amprenta"
- * (hash al sumelor/facturilor vizibile) si o comparam cu ultima observata.
- * Daca difera -> notificam. Daca sesiunea a expirat (suntem redirectionati la
- * login) -> renuntam silentios pana la urmatoarea logare manuala.
+ * WebView dupa ce te-ai autentificat in aplicatie.
+ *
+ * Doua metode, in ordine:
+ * 1. API-ul intern al portalului ([PortalApi]): o singura cerere JSON cu
+ *    facturile neachitate. Rapid, ieftin la baterie si exact — stim care
+ *    factura e noua si valoarea ei.
+ * 2. Rezerva, daca API-ul raspunde neasteptat (s-a schimbat, Cloudflare etc.):
+ *    pagina portalului intr-un WebView invizibil, din care extragem o
+ *    "amprenta" (hash al sumelor/facturilor vizibile).
+ * Daca sesiunea a expirat (redirect la login) -> renuntam silentios pana la
+ * urmatoarea logare manuala.
  */
 class InvoiceCheckWorker(
     context: Context,
@@ -39,6 +46,70 @@ class InvoiceCheckWorker(
         val prefs = AppPreferences(applicationContext)
         if (!prefs.invoiceNotificationsEnabled) return Result.success()
 
+        when (val api = fetchViaApi()) {
+            is PortalApi.FetchResult.Ok -> {
+                handleApiInvoices(prefs, api.invoices)
+                return Result.success()
+            }
+            PortalApi.FetchResult.SessionExpired -> {
+                recordOutcome(prefs, Outcome.SESSION_EXPIRED)
+                return Result.success()
+            }
+            PortalApi.FetchResult.NetworkError -> {
+                recordOutcome(prefs, Outcome.ERROR)
+                return Result.retry()
+            }
+            PortalApi.FetchResult.Unavailable -> Unit // rezerva: WebView, mai jos
+        }
+        return checkViaWebView(prefs)
+    }
+
+    /** Cererea API cu sesiunea WebView-ului; cookie-urile primite inapoi sunt salvate. */
+    private suspend fun fetchViaApi(): PortalApi.FetchResult {
+        // CookieManager / WebSettings: pe thread-ul principal, ca in restul aplicatiei.
+        val (cookies, userAgent) = withContext(Dispatchers.Main) {
+            CookieManager.getInstance().getCookie(PortalApi.INVOICES_URL) to
+                runCatching { WebSettings.getDefaultUserAgent(applicationContext) }.getOrDefault("")
+        }
+        // Niciun cookie = nicio sesiune (n-a fost login sau datele au fost sterse).
+        if (cookies.isNullOrBlank()) return PortalApi.FetchResult.SessionExpired
+
+        val setCookies = mutableListOf<String>()
+        val result = withContext(Dispatchers.IO) {
+            PortalApi.fetchUnpaidInvoices(cookies, userAgent) { setCookies += it }
+        }
+        // Serverul poate reimprospata cookie-urile de sesiune: le salvam pe disc,
+        // ca verificarea din fundal sa prelungeasca sesiunea, nu doar sa o citeasca.
+        withContext(Dispatchers.Main) {
+            val cm = CookieManager.getInstance()
+            setCookies.forEach { cm.setCookie(PortalApi.INVOICES_URL, it) }
+            cm.flush()
+        }
+        return result
+    }
+
+    /**
+     * Compara facturile neachitate cu cele vazute data trecuta (ca hash-uri)
+     * si notifica pentru cele noi, cu valoarea lor.
+     */
+    private fun handleApiInvoices(prefs: AppPreferences, invoices: List<PortalApi.Invoice>) {
+        val hashOf = { inv: PortalApi.Invoice -> InvoiceSignature.sha256(inv.key) }
+        val previous = prefs.lastInvoiceKeys
+        val fresh = PortalApi.newInvoices(invoices, previous, hashOf)
+        prefs.lastInvoiceKeys = invoices.map(hashOf).toSet()
+        // Amprenta metodei de rezerva ar fi acum veche: o resetam, ca o
+        // eventuala revenire la WebView sa porneasca de la zero, fara alarme false.
+        prefs.lastInvoiceSignature = null
+
+        if (fresh.isNotEmpty()) {
+            val total = fresh.mapNotNull { it.value }.takeIf { it.isNotEmpty() }?.sum()
+            NotificationHelper.showNewInvoice(applicationContext, fresh.size, total)
+        }
+        recordOutcome(prefs, if (fresh.isNotEmpty()) Outcome.NEW_INVOICE else Outcome.OK)
+    }
+
+    /** Metoda de rezerva: pagina portalului intr-un WebView invizibil. */
+    private suspend fun checkViaWebView(prefs: AppPreferences): Result {
         val page = withContext(Dispatchers.Main) {
             withTimeoutOrNull(PAGE_TIMEOUT_MS) { loadPortalPage() }
         } ?: run {

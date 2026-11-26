@@ -41,6 +41,16 @@ class AppPreferences(context: Context) {
         set(value) = prefs.edit().putString(KEY_INVOICE_SIG, value).apply()
 
     /**
+     * Facturile neachitate vazute la ultima verificare prin API, ca hash-uri
+     * (SHA-256 al identificatorului facturii) — nu stocam numere de factura
+     * sau sume. null = inca nicio verificare reusita prin API.
+     */
+    var lastInvoiceKeys: Set<String>?
+        get() = prefs.getString(KEY_INVOICE_KEYS, null)
+            ?.split(',')?.filter { it.isNotBlank() }?.toSet()
+        set(value) = prefs.edit().putString(KEY_INVOICE_KEYS, value?.joinToString(",")).apply()
+
+    /**
      * Cate trimiteri automate de login au esuat la rand (am revenit pe
      * login.jsp dupa un auto-submit). Peste un prag, oprim auto-submit-ul ca
      * sa nu buclam cu o parola gresita si sa riscam blocarea contului;
@@ -75,6 +85,7 @@ class AppPreferences(context: Context) {
         private const val KEY_NOTIFY = "invoice_notifications"
         private const val KEY_AUTO_LOGIN = "auto_login"
         private const val KEY_INVOICE_SIG = "invoice_signature"
+        private const val KEY_INVOICE_KEYS = "invoice_keys"
         private const val KEY_AUTO_LOGIN_FAILURES = "auto_login_failures"
         private const val KEY_SKIPPED_UPDATE = "skipped_update_version"
         private const val KEY_LAST_CHECK_AT = "last_invoice_check_at"

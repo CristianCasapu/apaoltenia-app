@@ -77,10 +77,15 @@ a re-loga complet automat in fundal. Solutia implementata:
 
 - Cat timp **sesiunea ramane activa**, aplicatia verifica periodic portalul
   (aprox. o data la 6 ore, prin `WorkManager`), reutilizand cookie-urile
-  sesiunii tale intr-un WebView invizibil.
-- Extrage o **amprenta** (hash) a sumelor/facturilor vizibile — fara a stoca
-  continut sensibil — si o compara cu ultima observata. La o schimbare, iti
-  trimite o **notificare locala**.
+  sesiunii tale.
+- Verificarea foloseste **API-ul intern al portalului** (cel apelat de propria
+  lui interfata, nedocumentat): o singura cerere JSON cu facturile neachitate.
+  Pastreaza doar **hash-uri** ale identificatorilor de factura — fara numere de
+  factura sau sume — si te anunta cu o **notificare locala** cand apare o
+  factura noua, cu valoarea ei.
+- Daca API-ul raspunde neasteptat (de ex. s-a schimbat), aplicatia revine
+  automat la metoda veche: incarca portalul intr-un WebView invizibil si
+  compara o **amprenta** (hash) a sumelor/facturilor vizibile.
 - Daca sesiunea a expirat (portalul cere din nou login + Turnstile),
   verificarea se opreste silentios pana te autentifici manual din nou.
 
@@ -156,6 +161,7 @@ app/src/main/
 │   ├── BiometricAuthenticator.kt # amprenta / fata / PIN / model
 │   ├── WebAppInterface.kt        # captarea credentialelor la logare
 │   ├── InvoiceCheckWorker.kt     # verificare facturi in fundal (WorkManager)
+│   ├── PortalApi.kt              # cererea JSON catre API-ul intern al portalului
 │   ├── InvoiceCheckScheduler.kt  # pornire/oprire verificare periodica
 │   ├── NotificationHelper.kt     # notificarea de factura noua
 │   └── UpdateChecker.kt          # verificare versiuni via GitHub Releases
