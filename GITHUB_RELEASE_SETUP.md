@@ -1,14 +1,16 @@
 # Configurare Build Automat + Release ApaOltenia Client
 
-Urmareste pasii de mai jos O SINGURA DATA. Dupa configurare, un simplu
-`git tag v1.x.y && git push origin v1.x.y` declanseaza build-ul automat pe
-GitHub si publica release-ul cu APK-ul semnat.
+Release-urile oficiale (APK semnat + GitHub Release) se fac **pe GitHub**,
+prin `.github/workflows/release.yml`. Build-ul local cu `release.ps1` ramane
+disponibil, dar doar compileaza — nu publica nimic.
+
+Pasii 1–2 se fac **o singura data**.
 
 ---
 
 ## PASUL 1 — Genereaza keystore-ul de semnare
 
-Ruleaza in PowerShell (din radacina proiectului):
+Ruleaza in PowerShell:
 
 ```powershell
 keytool -genkey -v `
@@ -27,27 +29,11 @@ La intrebari poti completa:
 
 **IMPORTANT:** Salveaza `apaoltenia.jks` intr-un loc sigur (cloud personal,
 NU in repo!). Daca il pierzi, nu mai poti publica actualizari semnate cu
-aceeasi identitate.
+aceeasi identitate — utilizatorii ar trebui sa dezinstaleze aplicatia.
 
 ---
 
-## PASUL 2 — Build local semnat (optional)
-
-Copiaza `keystore.properties.example` in `keystore.properties` si completeaza
-parolele. Fisierul este deja in `.gitignore`. Apoi:
-
-```powershell
-./gradlew assembleRelease
-```
-
-APK-ul rezulta in `app/build/outputs/apk/release/app-release.apk`.
-
-Fara `keystore.properties`, build-ul de release ramane nesemnat (util doar
-pentru testare); pentru distributie foloseste semnarea.
-
----
-
-## PASUL 3 — Adauga Secrets in GitHub
+## PASUL 2 — Adauga Secrets in GitHub
 
 Mergi la: **GitHub → repo apaoltenia-app → Settings → Secrets and variables → Actions**
 
@@ -73,65 +59,54 @@ Parola aleasa pentru key (poate fi aceeasi cu KEYSTORE_PASSWORD).
 
 ---
 
-## Alternativa rapida — `release.ps1` (build local + release local)
+## Publicarea unei versiuni noi
 
-Daca vrei sa compilezi pe masina ta si sa publici imediat APK-ul local (fara
-sa astepti GitHub Actions), foloseste scriptul:
+1. In `app/build.gradle.kts` mareste `versionName` (ex. `1.10.0`) si
+   `versionCode` (+1).
+2. In `app/src/main/java/ro/apaoltenia/client/Changelog.kt` adauga intrarea
+   pentru aceeasi versiune, prima in lista — din ea se genereaza notele
+   release-ului.
+3. Fa merge pe `main` (PR sau push direct).
 
-```powershell
-.\release.ps1 -Version 1.0.1
-```
+GitHub Actions observa ca pentru `versionName` nu exista inca tag-ul `vX.Y.Z`
+si, automat:
+1. Verifica concordanta versiune ↔ `Changelog.kt`
+2. Instaleaza JDK 17 + Gradle si decodeaza keystore-ul din secret
+3. Compileaza APK-ul semnat
+4. Creeaza tag-ul si **GitHub Release**-ul cu APK-ul atasat
 
-Cerinte: `keystore.properties` completat (PASUL 2) si acces la GitHub (git deja
-autentificat sau `gh auth login`). Scriptul urca versiunea, compileaza APK-ul
-semnat, il pune in `dist\` si creeaza release-ul. Creeaza tag-ul prin API, deci
-**nu declanseaza si workflow-ul** — nu ai build dublu.
-
-Pentru Secrets din GitHub Actions (PASUL 3) ai nevoie DOAR daca preferi calea
-prin push de tag. Cele doua cai sunt independente.
-
----
-
-## PASUL 4 — Primul release (prin GitHub Actions)
-
-1. Verifica versiunea in `app/build.gradle.kts` (`versionName` / `versionCode`).
-2. Publica:
-
-```powershell
-git add .
-git commit -m "chore: pregatire release"
-git tag v1.0.0
-git push origin main
-git push origin v1.0.0
-```
-
-GitHub Actions va:
-1. Detecta tag-ul `v1.0.0`
-2. Instala JDK 17 + Gradle
-3. Decodifica keystore-ul din secret
-4. Compila APK-ul semnat
-5. Crea automat un **GitHub Release** cu APK-ul atasat
+Un push pe `main` care nu schimba versiunea nu publica nimic.
 
 Urmareste progresul la **GitHub → repo → Actions**.
 
----
+### Alternative
 
-## Flux pentru versiuni viitoare
+- Declansare manuala (versiunea e luata din Gradle):
+  ```powershell
+  gh workflow run release.yml --ref main
+  ```
+- Push de tag: `git tag v1.10.0 && git push origin v1.10.0`
 
-```powershell
-# 1. Incrementeaza versiunea in app/build.gradle.kts
-#    versionName = "1.1.0"  ->  versionCode = 2
-# 2. Commit
-git commit -am "feat: descriere functii noi"
-# 3. Tag + push
-git tag v1.1.0
-git push origin main
-git push origin v1.1.0
-```
+Daca tag-ul versiunii exista deja, rularea manuala se opreste cu eroare — un
+release publicat nu e suprascris niciodata cu un APK din alt commit.
 
 Utilizatorii vad versiunea noua din **Setari → Verifica actualizari**
 (aplicatia interogheaza GitHub Releases al acestui repo — public, deci fara
 niciun token in cod).
+
+---
+
+## Build local optional
+
+Pentru test pe masina ta: copiaza `keystore.properties.example` in
+`keystore.properties`, completeaza parolele, apoi:
+
+```powershell
+.\release.ps1 -Version 1.10.0   # APK semnat in dist\
+.\release.ps1 -Debug            # APK de debug
+```
+
+Scriptul nu creeaza tag-uri si nu publica release-uri.
 
 ---
 

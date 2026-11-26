@@ -1,20 +1,34 @@
 name: Build & Release Android APK
 
-# Declansat la orice tag de forma v1.2.3 sau manual (workflow_dispatch),
-# caz in care tag-ul e creat de release chiar pe commit-ul curent din main.
+# Trei moduri de declansare:
+#  1. push pe main care modifica app/build.gradle.kts → daca versionName
+#     nu are inca tag (vX.Y.Z), release-ul se publica AUTOMAT. Astfel un
+#     merge cu versiune noua nu mai ramane fara release (cum s-a intamplat
+#     cu v1.9.0, cand rularea manuala a avut loc inainte de merge).
+#  2. push de tag v1.2.3 (ca inainte).
+#  3. manual (workflow_dispatch); versiunea e optionala — implicit se ia
+#     versionName din app/build.gradle.kts.
 on:
   push:
+    branches: [main]
+    paths: ['app/build.gradle.kts']
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versiunea de publicat (ex. 1.6.0), fara prefixul v'
-        required: true
+        description: 'Versiunea de publicat (ex. 1.9.0), fara prefixul v. Gol = versionName din Gradle'
+        required: false
 
 # GITHUB_TOKEN trebuie sa poata crea release-uri
 permissions:
   contents: write
+
+# Rulari serializate: o a doua rulare (ex. push pe main + push de tag) vede
+# tag-ul creat de prima si se opreste, in loc sa publice de doua ori.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   build-android:
@@ -24,73 +38,68 @@ jobs:
     steps:
       # ── 1. Checkout ────────────────────────────────────────────────
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      # ── 2. JDK 17 ──────────────────────────────────────────────────
+      # ── 2. Versiunea: din tag, din input sau din Gradle ─────────────
+      # Tag-ul trebuie sa coincida cu versionName din Gradle; altfel s-ar
+      # publica un APK care se raporteaza cu alta versiune decat release-ul,
+      # iar verificarea din aplicatie ar propune actualizarea la nesfarsit.
+      - name: Resolve version
+        id: version
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          GRADLE_VER=$(grep -oP 'versionName = "\K[0-9.]+' app/build.gradle.kts)
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            VER="${GITHUB_REF_NAME#v}"
+          elif [ "$EVENT" = "workflow_dispatch" ] && [ -n "$INPUT_VERSION" ]; then
+            VER="${INPUT_VERSION#v}"
+          else
+            VER="$GRADLE_VER"
+          fi
+          if [ "$GRADLE_VER" != "$VER" ]; then
+            echo "::error::Versiunea $VER != versionName $GRADLE_VER din app/build.gradle.kts"
+            exit 1
+          fi
+          TAG="v$VER"
+
+          # Tag existent: la push pe main inseamna ca versiunea nu s-a schimbat
+          # (sau release-ul exista deja) → iesim linistit. La rulare manuala e
+          # o eroare: release-ul existent ar primi un APK din alt commit.
+          SKIP=false
+          if [ "${GITHUB_REF_TYPE}" != "tag" ] && \
+             git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+            if [ "$EVENT" = "push" ]; then
+              echo "::notice::$TAG exista deja — nimic de publicat."
+              SKIP=true
+            else
+              echo "::error::$TAG exista deja. Mareste versionName/versionCode in app/build.gradle.kts si actualizeaza Changelog.kt."
+              exit 1
+            fi
+          fi
+          echo "TAG=$TAG"     >> "$GITHUB_OUTPUT"
+          echo "VERSION=$VER" >> "$GITHUB_OUTPUT"
+          echo "SKIP=$SKIP"   >> "$GITHUB_OUTPUT"
+
+      # ── 3. JDK 17 ──────────────────────────────────────────────────
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        if: steps.version.outputs.SKIP != 'true'
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # ── 3. Gradle cache ────────────────────────────────────────────
+      # ── 4. Gradle cache ────────────────────────────────────────────
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        if: steps.version.outputs.SKIP != 'true'
+        uses: gradle/actions/setup-gradle@v5
 
-      # ── 4. Decodeaza keystore-ul (stocat ca secret Base64) ─────────
-      - name: Decode keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > apaoltenia.jks
-
-      # ── 5. Extrage versiunea din tag (v1.2.3 → 1.2.3) sau din input ─
-      - name: Extract version from tag
-        id: version
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VER="${{ github.event.inputs.version }}"
-            TAG="v$VER"
-          else
-            TAG="${GITHUB_REF#refs/tags/}"
-            VER="${TAG#v}"
-          fi
-          echo "TAG=$TAG"     >> $GITHUB_OUTPUT
-          echo "VERSION=$VER" >> $GITHUB_OUTPUT
-
-      # ── 5b. Tag-ul trebuie sa coincida cu versionName din Gradle ───
-      # Altfel s-ar publica un APK care se raporteaza pe sine cu alta
-      # versiune decat release-ul: verificarea din aplicatie ar propune
-      # actualizarea la nesfarsit (sau n-ar vedea-o deloc).
-      - name: Verify tag matches versionName
-        run: |
-          GRADLE_VER=$(grep -oP 'versionName = "\K[0-9.]+' app/build.gradle.kts)
-          if [ "$GRADLE_VER" != "${{ steps.version.outputs.VERSION }}" ]; then
-            echo "::error::Tag ${{ steps.version.outputs.VERSION }} != versionName $GRADLE_VER din app/build.gradle.kts"
-            exit 1
-          fi
-
-      # ── 6. Build APK release semnat ────────────────────────────────
-      # Cheia si parolele vin din secrets, prin variabile de mediu citite
-      # in app/build.gradle.kts (KEYSTORE_FILE / KEYSTORE_PASSWORD / ...).
-      - name: Build release APK
-        env:
-          KEYSTORE_FILE: ${{ github.workspace }}/apaoltenia.jks
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --no-daemon
-
-      # ── 7. Redenumeste APK cu versiunea ────────────────────────────
-      - name: Rename APK
-        run: |
-          mv app/build/outputs/apk/release/app-release.apk \
-             "ApaOltenia-v${{ steps.version.outputs.VERSION }}.apk"
-
-      # ── 7b. Notele de release, generate din Changelog.kt ───────────
-      # Changelog-ul din aplicatie e sursa unica de adevar pentru noutati;
-      # extragem cea mai noua intrare si o punem in corpul release-ului.
-      # Daca versiunea din changelog nu coincide cu tag-ul, oprim publicarea
-      # (inseamna ca s-a uitat actualizarea changelog-ului).
+      # ── 5. Notele de release, generate din Changelog.kt ───────────
+      # Ruleaza INAINTE de build: daca s-a uitat actualizarea changelog-ului,
+      # esuam in cateva secunde, nu dupa build-ul complet.
       - name: Generate release notes from changelog
+        if: steps.version.outputs.SKIP != 'true'
         run: |
           python3 - "${{ steps.version.outputs.VERSION }}" <<'EOF'
           import re, sys
@@ -118,17 +127,52 @@ jobs:
               f.write('3. Deschide fisierul si instaleaza\n')
           EOF
 
-      # ── 8. Creeaza GitHub Release cu APK-ul ────────────────────────
+      # ── 6. Decodeaza keystore-ul (stocat ca secret Base64) ─────────
+      - name: Decode keystore
+        if: steps.version.outputs.SKIP != 'true'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::Secretul KEYSTORE_BASE64 lipseste"
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > apaoltenia.jks
+
+      # ── 7. Build APK release semnat ────────────────────────────────
+      # Cheia si parolele vin din secrets, prin variabile de mediu citite
+      # in app/build.gradle.kts (KEYSTORE_FILE / KEYSTORE_PASSWORD / ...).
+      - name: Build release APK
+        if: steps.version.outputs.SKIP != 'true'
+        env:
+          KEYSTORE_FILE: ${{ github.workspace }}/apaoltenia.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon
+
+      # ── 8. Redenumeste APK cu versiunea + sterge keystore-ul ───────
+      - name: Rename APK
+        if: steps.version.outputs.SKIP != 'true'
+        run: |
+          rm -f apaoltenia.jks
+          mv app/build/outputs/apk/release/app-release.apk \
+             "ApaOltenia-v${{ steps.version.outputs.VERSION }}.apk"
+          sha256sum "ApaOltenia-v${{ steps.version.outputs.VERSION }}.apk"
+
+      # ── 9. Creeaza GitHub Release cu APK-ul ────────────────────────
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        if: steps.version.outputs.SKIP != 'true'
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.TAG }}
-          # La workflow_dispatch tag-ul nu exista inca: release-ul il creeaza
-          # chiar pe commit-ul din care ruleaza. La push de tag e ignorat.
+          # Cand tag-ul nu exista inca (push pe main / rulare manuala),
+          # release-ul il creeaza chiar pe commit-ul din care ruleaza.
           target_commitish: ${{ github.sha }}
           name: "ApaOltenia Client v${{ steps.version.outputs.VERSION }}"
           body_path: release_notes.md
           files: "ApaOltenia-v${{ steps.version.outputs.VERSION }}.apk"
           draft: false
           prerelease: false
+          make_latest: true
           fail_on_unmatched_files: true

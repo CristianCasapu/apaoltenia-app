@@ -113,30 +113,35 @@ Wrapper-ul Gradle este inclus.
 ./gradlew installDebug
 ```
 
-Pentru APK de release semnat, vezi [`GITHUB_RELEASE_SETUP.md`](GITHUB_RELEASE_SETUP.md).
-Pe scurt: copiaza `keystore.properties.example` → `keystore.properties`,
-completeaza parolele si ruleaza `./gradlew assembleRelease`.
+Release-urile oficiale se compileaza si se publica **pe GitHub** — vezi
+[`GITHUB_RELEASE_SETUP.md`](GITHUB_RELEASE_SETUP.md). Build-ul local
+(`release.ps1`, mai jos) e optional, doar pentru test.
 
-### Release rapid dintr-o comanda (`release.ps1`)
+### Publicarea unui release
 
-Compileaza APK-ul semnat **si** publica release-ul cu APK-ul local, dintr-un
-singur pas (Windows / PowerShell):
+Pasii pentru o versiune noua:
+
+1. Mareste `versionName` si `versionCode` in `app/build.gradle.kts`.
+2. Adauga intrarea noua (aceeasi versiune) la inceputul listei din `Changelog.kt`.
+3. Fa merge pe `main` — **release-ul se publica automat**: workflow-ul vede ca
+   pentru `versionName` nu exista inca tag-ul `vX.Y.Z`, compileaza APK-ul
+   semnat, creeaza tag-ul si release-ul cu notele din `Changelog.kt`.
+
+Alternative: push de tag (`git tag vX.Y.Z && git push origin vX.Y.Z`) sau
+declansare manuala (`gh workflow run release.yml --ref main`; versiunea e luata
+din Gradle). Daca tag-ul exista deja, rularea manuala se opreste cu eroare, ca
+sa nu se suprascrie un release existent cu un APK din alt commit.
+
+### Build local optional (`release.ps1`)
+
+Doar compileaza, nu publica nimic (Windows / PowerShell). Pentru APK semnat
+local ai nevoie de `keystore.properties` (copiat din `keystore.properties.example`).
 
 ```powershell
-.\release.ps1 -Version 1.0.1            # build semnat + release pe GitHub
-.\release.ps1 -Version 1.0.1 -NoPublish # doar compileaza (dist\ApaOltenia-v1.0.1.apk)
+.\release.ps1 -Version 1.0.1            # APK semnat in dist\ApaOltenia-v1.0.1.apk
+.\release.ps1 -Version 1.0.1 -Clean     # cu ./gradlew clean inainte
 .\release.ps1 -Debug                    # APK de debug, rapid, pentru test
 ```
-
-Scriptul urca `versionName`/`versionCode`, compileaza, copiaza APK-ul in `dist\`
-si creeaza release-ul prin API-ul GitHub. **Doua cai separate**, alege una:
-
-- **`release.ps1`** — build local rapid, publica APK-ul de pe masina ta.
-- **Push de tag** (`git tag vX.Y.Z && git push origin vX.Y.Z`) — build in cloud
-  prin GitHub Actions.
-
-(`release.ps1` creeaza tag-ul prin API, deci NU declanseaza si workflow-ul —
-nu vei avea build dublu.)
 
 ## Structura
 
@@ -157,7 +162,7 @@ app/src/main/
 ├── assets/portal_style.css       # stilul custom injectat peste portal
 ├── res/…                         # layout, teme day/night, iconite, texte
 └── AndroidManifest.xml
-.github/workflows/release.yml     # build + release automat la tag
+.github/workflows/release.yml     # build + release automat (versiune noua pe main / tag)
 ```
 
 ## Cerinte minime
