@@ -13,6 +13,10 @@ internal fun wipeLocalData(context: Context) {
     CredentialStore(context).clear()
     prefs.invoiceNotificationsEnabled = false
     InvoiceCheckScheduler.disable(context)
+    // Starea facturilor tine de contul sters: la alt cont, prima verificare
+    // trebuie sa porneasca de la zero, nu sa raporteze "facturi noi".
+    prefs.lastInvoiceKeys = null
+    prefs.lastInvoiceSignature = null
     prefs.autoLoginFailures = 0
     prefs.skippedUpdateVersion = null
 }
